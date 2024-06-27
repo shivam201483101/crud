@@ -1,0 +1,234 @@
+%%%%%%%%%%%%%%%%%
+% This is an example CV created using altacv.cls (v1.1.5, 1 December 2018) written by
+% LianTze Lim (liantze@gmail.com), based on the
+% Cv created by BusinessInsider at http://www.businessinsider.my/a-sample-resume-for-marissa-mayer-2016-7/?r=US&IR=T
+%
+%% It may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2003/12/01 or later.
+%%%%%%%%%%%%%%%%
+
+%% If you are using \orcid or academicons
+%% icons, make sure you have the academicons
+%% option here, and compile with XeLaTeX
+%% or LuaLaTeX.
+% \documentclass[10pt,a4paper,academicons]{altacv}
+
+%% Use the "normalphoto" option if you want a normal photo instead of cropped to a circle
+% \documentclass[10pt,a4paper,normalphoto]{altacv}
+
+\documentclass[10pt,a4paper,ragged2e]{altacv}
+
+%% AltaCV uses the fontawesome and academicon fonts
+%% and packages.
+%% See texdoc.net/pkg/fontawecome and http://texdoc.net/pkg/academicons for full list of symbols. You MUST compile with XeLaTeX or LuaLaTeX if you want to use academicons.
+
+% Change the page layout if you need to
+\geometry{left=1cm,right=10cm,marginparwidth=8.5cm,marginparsep=0.8cm,top=0.5cm,bottom=0.5cm}
+
+% Change the font if you want to, depending on whether
+% you're using pdflatex or xelatex/lualatex
+\ifxetexorluatex
+  % If using xelatex or lualatex:
+  \setmainfont{Carlito}
+\else
+  % If using pdflatex:
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage[default]{lato}
+  \usepackage{hyperref}
+\fi
+\usepackage{fontawesome}
+% Define star rating command
+\newcommand{\starRating}[1]{%
+    \ifnum#1=0
+        \faStarO\faStarO\faStarO\faStarO\faStarO % 0 stars
+    \else
+        \ifnum#1=1
+            \faStar\faStarO\faStarO\faStarO\faStarO % 1 star
+        \else
+            \ifnum#1=2
+                \faStar\faStar\faStarO\faStarO\faStarO % 2 stars
+            \else
+                \ifnum#1=3
+                    \faStar\faStar\faStar\faStarO\faStarO % 3 stars
+                \else
+                    \ifnum#1=4
+                        \faStar\faStar\faStar\faStar\faStarO % 4 stars
+                    \else
+                        \ifnum#1=5
+                            \faStar\faStar\faStar\faStar\faStar % 5 stars
+                        \else
+                            \faStarO\faStarO\faStarO\faStarO\faStarO % fallback: 0 stars
+                        \fi
+                    \fi
+                \fi
+            \fi
+        \fi
+    \fi
+}
+% Change the colours if you want to
+\definecolor{VividPurple}{HTML}{000000}
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{2E2E2E}
+\colorlet{heading}{VividPurple}
+\colorlet{accent}{VividPurple}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+% Change the bullets for itemize and rating marker
+% for \cvskill if you want to
+\renewcommand{\itemmarker}{{\small\textbullet}}
+\renewcommand{\ratingmarker}{\faCircle}
+
+%% sample.bib contains your publications
+\addbibresource{sample.bib}
+
+\begin{document}
+\name{Manisha Pandey}
+\tagline{}
+% Cropped to square from https://en.wikipedia.org/wiki/Marissa_Mayer#/media/File:Marissa_Mayer_May_2014_(cropped).jpg, CC-BY 2.0
+%\photo{3.3cm}{img.png}
+\personalinfo{%
+  % Not all of these are required!
+  % You can add your own with \printinfo{symbol}{detail}
+  \phone{+91-9167166896}
+  \email{\href{mailto:31manishapandey@gmail.com}{31manishapandey@gmail.com}}
+%  \mailaddress{Address, Street, 00000 County}
+ \location{Mumbai, India}
+  
+%  \twitter{@marissamayer}
+  \linkedin{\href{https://in.linkedin.com/in/31manishapandey}{@31manishapandey}}
+   \github{\href{https://github.com/31manishapandey}{github.com/31manishapandey}}
+
+  % \homepage{\href{https://in.linkedin.com/in/31manishapandey}{Portfolio}}
+   %   \phone{000-00-0000}
+% I'm just making this up though.
+%   \orcid{orcid.org/0000-0000-0000-0000} % Obviously making this up too. If you want to use this field (and also other academicons symbols), add "academicons" option to \documentclass{altacv}
+}
+
+%% Make the header extend all the way to the right, if you want.
+\begin{fullwidth}
+\makecvheader
+\end{fullwidth}
+
+%% Depending on your tastes, you may want to make fonts of itemize environments slightly smaller
+\AtBeginEnvironment{itemize}{\small}
+
+%% Provide the file name containing the sidebar contents as an optional parameter to \cvsection.
+%% You can always just use \marginpar{...} if you do
+%% not need to align the top of the contents to any
+%% \cvsection title in the "main" bar.
+\cvsection[page1sidebar]{Summary}
+\begin{flushleft}
+   \normalfont{Aspiring Cyber security analyst with a keen focus on vulnerability assessment, web app security, and computer networking. Well-versed in OWASP guidelines, penetration testing, and automated security solutions. 
+   
+   I have Applied security features and testing on various projects, including web applications. Looking for opportunity to leverage expertise in security testing to mitigate risk and vulnerabilities and enhance system security }
+\end{flushleft}
+    
+
+
+
+
+\cvsection{Education}
+\cvevent{Sophia college ( Autonomous || Mumbai university )}{B.Sc -Information Technology  CGPA:7.45 | 82.47\%  }{ 2021 -- 2024}{}
+%\divider
+\cvevent{R.K Talreja college ( Maharashtra Board)}{HSC - 12th Science (IT) ||  Result: 61\%  }{ 2018-- 2020}{}
+\cvevent{Holy Faith School ( Maharashtra Board)}{SSC - 10th || Result: 88\%  }{ 2007-- 2018}{}
+% \divider
+
+
+\cvsection{Experience}
+\cvevent{Security Analyst Intern }{ JP Morgan Chase | Forage }{June 2024 -- July 2024}{Mumbai,India}
+\cvproject{\textit{Project: Email Classifier | Django web app }}
+\begin{itemize}
+\item Analyzed large datasets of bank transactions to detect and investigate \bf{fraudulent payment activities}\normalfont{, enhancing the 
+security of financial transactions.}
+ \smallskip
+\item Implemented \bf{application security}\normalfont{ fundamentals learned during the internship to enhance security on personal web projects.}
+ \smallskip
+\item Engineered an \bf{Email classifier} \normalfont{ to filter malicious content, contributing to email security within the organization.}\bf{Text-based ML models}.\smallskip
+\item \normalfont{Designed and developed a system to tighten} \bf{access controls} \normalfont{for sensitive information, deepening insights into real-world security systems.}
+\end{itemize}
+% \begin{itemize}
+% \item Research and development of Computer Vision algorithms centered around the video surveillance domain in collaboration with NCETIS, IIT Bombay.
+% \smallskip
+% \item Working with team on design, development and integration of real-time video analytic solution.
+% \smallskip
+% \item Leading the team on the training and evaluation of Deep Neural Network models.
+% \smallskip
+% \item Experience with performance analysis, optimizations and benchmark evaluations.
+% \end{itemize}
+
+\cvsection{Relevant Courses}
+\begin{itemize}
+     
+    \item\normalfont{Introduction To Cyber Security || } \bf{{ Cisco}}
+    \smallskip
+    \item\normalfont {Complete Cyber Security | Beginners to advance 11 hrs  || }\bf{{Simplilearn}}
+    \smallskip
+    \item\normalfont {Complete Ethical Hacking and Penetration Testing || } \bf{{freecodecamp}}
+\end{itemize}
+
+\cvsection{TECHNICAL PROFILES}
+\begin{itemize}
+\item\bf{Github :}\normalfont\newline{@31manishapandey}
+\smallskip
+\item\bf{Port Swigger :}\normalfont\newline{@31manishapandey}
+%\divider
+\item\bf{GeeksforGeeks :}\normalfont\newline{@manishapandey}
+%\dvider
+\end{itemize}
+
+% \cvevent{Product Engineer}{Google}{23 June 1999 -- 2001}{Palo Alto, CA}
+
+% \begin{itemize}
+% \item Joined the company as employe \#20 and female employee \#1
+% \item Developed targeted advertisement in order to use user's search queries and show them related ads
+% \end{itemize}
+
+% \cvsection{A Day of My Life}
+
+% Adapted from @Jake's answer from http://tex.stackexchange.com/a/82729/226
+% % \wheelchart{outer radius}{inner radius}{
+% % comma-separated list of value/text width/color/detail}
+% % Some ad-hoc tweaking to adjust the labels so that they don't overlap
+% \wheelchart{1.5cm}{0.5cm}{%
+%   10/10em/accent!30/Sleeping \& dreaming about work,
+%   25/9em/accent!60/Public resolving issues with Yahoo!\ investors,
+%   5/13em/accent!10/\footnotesize\\[1ex]New York \& San Francisco Ballet Jawbone board member,
+%   20/15em/accent!40/Spending time with family,
+%   5/8em/accent!20/\footnotesize Business development for Yahoo!\ after the Verizon acquisition,
+%   30/9em/accent/Showing Yahoo!\ employees that their work has meaning,
+%   5/8em/accent!20/Baking cupcakes
+% }
+
+\clearpage
+
+% \cvsection[page2sidebar]{Publications}
+
+\nocite{*}
+
+% \printbibliography[heading=pubtype,title={\printinfo{\faBook}{Books}},type=book]
+
+% \divider
+
+% \printbibliography[heading=pubtype,title={\printinfo{\faFileTextO}{Journal Articles}}, type=article]
+
+% \divider
+
+% \printbibliography[heading=pubtype,title={\printinfo{\faGroup}{Conference Proceedings}},type=inproceedings]
+
+% %% If the NEXT page doesn't start with a \cvsection but you'd
+% %% still like to add a sidebar, then use this command on THIS
+% %% page to add it. The optional argument lets you pull up the
+% %% sidebar a bit so that it looks aligned with the top of the
+% %% main column.
+% % \addnextpagesidebar[-1ex]{page3sidebar}
+
+
+\end{document}
