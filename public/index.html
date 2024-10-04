@@ -1,0 +1,42 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Inventory</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Inventory ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryData">
+                
+            </tbody>
+        </table>
+    </div>
+    <script>
+        fetch('/api/inventory')
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.getElementById('inventoryData');
+                data.forEach(item => {
+                    let row = `<tr>
+                                  <td>${item.id}</td>
+                                  <td>${item.name}</td>
+                                  <td>${item.description}</td>
+                               </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            });
+    </script>
+</body>
+</html>
