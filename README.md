@@ -26,3 +26,6 @@ we can easily test the InventoryController without affecting InventoryService. T
 # Flexibility:
 
 If we later decide to use a different service we can simply replace the InventoryService without modifying the InventoryController.
+
+# OUTPUT:
+![Inventory Table](./images.jpg)
