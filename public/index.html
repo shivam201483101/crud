@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HorusCore Inventory</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Inventory Management</h2>
+
+    
+        <form id="inventoryForm" class="mb-5">
+            <div class="form-group">
+                <label for="inventoryId">ID</label>
+                <input type="number" class="form-control" id="inventoryId" placeholder="Enter ID" required />
+            </div>
+            <div class="form-group">
+                <label for="inventoryName">Name</label>
+                <input type="text" class="form-control" id="inventoryName" placeholder="Enter name" required />
+            </div>
+            <div class="form-group">
+                <label for="inventoryDescription">Description</label>
+                <input type="text" class="form-control" id="inventoryDescription" placeholder="Enter description" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Save Inventory</button>
+        </form>
+
+       
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Inventory ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryData">
+               
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiUrl = '/api/inventory';
+
+       
+        function fetchInventory() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('inventoryData');
+                    tableBody.innerHTML = '';
+                    data.forEach(item => {
+                        const row = `<tr>
+                                        <td>${item.id}</td>
+                                        <td>${item.name}</td>
+                                        <td>${item.description}</td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm" onclick="editInventory(${item.id})">Edit</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteInventory(${item.id})">Delete</button>
+                                        </td>
+                                     </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                });
+        }
+
+
+        document.getElementById('inventoryForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const id = parseInt(document.getElementById('inventoryId').value);  // ID input now used
+    const name = document.getElementById('inventoryName').value;
+    const description = document.getElementById('inventoryDescription').value;
+
+    const inventory = { id, name, description };
+
+    if (!isNaN(id) && id) {
+      
+        fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inventory)
+        })
+        .then(response => {
+            if (response.status === 404) {
+               
+                return fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inventory)
+                });
+            }
+            return response.json();
+        })
+        .then(() => {
+            resetForm();
+            fetchInventory();
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+       
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inventory)
+        })
+        .then(response => response.json())
+        .then(() => {
+            resetForm();
+            fetchInventory();
+        });
+    }
+});
+
+
+       
+        function editInventory(id) {
+            fetch(`${apiUrl}/${id}`)
+                .then(response => response.json())
+                .then(item => {
+                    document.getElementById('inventoryId').value = item.id;
+                    document.getElementById('inventoryName').value = item.name;
+                    document.getElementById('inventoryDescription').value = item.description;
+                });
+        }
+
+       
+        function deleteInventory(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                fetch(`${apiUrl}/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(() => {
+                    fetchInventory();
+                });
+            }
+        }
+
+        
+        function resetForm() {
+            document.getElementById('inventoryId').value = '';
+            document.getElementById('inventoryName').value = '';
+            document.getElementById('inventoryDescription').value = '';
+        }
+
+        
+        fetchInventory();
+    </script>
+</body>
+</html>
+
+
