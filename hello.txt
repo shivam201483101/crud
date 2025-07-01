@@ -1,4 +1,128 @@
+@ExtendWith(MockitoExtension.class)
+class SavePartialDaoTest {
 
+    @InjectMocks
+    private AccountOpeningSvc accountOpeningSvc;
+
+    @Mock
+    private SavePartialDao savePartialDao;
+    @Mock
+    private AccountOpeningDAO accountOpeningDAO;
+    @Mock
+    private SaveVKYCDao saveVKYCDao;
+    @Mock
+    private SetFlags setFlags;
+    @Mock
+    private ExtendedAccountOpeningValidator extendedAccountOpeningValidator;
+    @Mock
+    private CustomerPersonalDetailsRepo customerPersonalDetailsRepo;
+    @Mock
+    private OnboardingStatusRepo onboardingStatusRepo;
+
+    private AccountOpeningAppln mockAppln(String state) {
+        AccountOpeningAppln appln = new AccountOpeningAppln();
+        Lead lead = new Lead();
+        lead.setLeadId("LEAD006789");
+        appln.setLead(lead);
+        appln.setState(state);
+        return appln;
+    }
+
+    private Optional<OnboardingStatusVo> mockOnboardingStatus() {
+        return Optional.of(new OnboardingStatusVo());
+    }
+
+    @BeforeEach
+    void setUp() {
+        when(onboardingStatusRepo.findByOnbrdngSts(any(), any())).thenReturn(mockOnboardingStatus());
+        when(customerPersonalDetailsRepo.findById(any())).thenReturn(Optional.empty());
+    }
+
+    @Test
+    void testValidationException() throws JsonProcessingException {
+        AccountOpeningAppln appln = mockAppln("006");
+        doThrow(JsonProcessingException.class).when(extendedAccountOpeningValidator).validate(any());
+
+        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"006", "007", "008", "010", "012", "013", "014", "015"})
+    void testStatesWithServiceBusinessException(String state) throws Exception {
+        AccountOpeningAppln appln = mockAppln(state);
+        switch (state) {
+            case "006" -> when(savePartialDao.savePartialDetailsPersonal(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "007" -> when(savePartialDao.savePartialDetailsProfessional(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "008" -> when(savePartialDao.savePartialDetailsReligion(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "010" -> when(savePartialDao.savePartialDetailsCommAdd(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "012" -> when(savePartialDao.savePartialDetailsNominationPersonal(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "013" -> when(savePartialDao.savePartialDetailsNomineePermAdd(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "014" -> when(savePartialDao.savePartialDetailsGaurdianPersonal(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+            case "015" -> when(savePartialDao.savePartialDetailsGaurdianPermAdd(any(), any()))
+                .thenThrow(new ServiceBusinessException("error"));
+        }
+
+        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+    }
+
+    @Test
+    void test009Success() throws Exception {
+        AccountOpeningAppln appln = mockAppln("009");
+        when(savePartialDao.savePartialDetailsAddDetails(any(), any())).thenReturn(true);
+
+        String result = accountOpeningSvc.savePersonalData(appln);
+        assertEquals("SAVED", result);
+    }
+
+    @Test
+    void test016Success() {
+        AccountOpeningAppln appln = mockAppln("016");
+        when(accountOpeningDAO.saveBranchDetails(any())).thenReturn(true);
+
+        String result = assertDoesNotThrow(() -> accountOpeningSvc.savePersonalData(appln));
+        assertEquals("SAVED", result);
+    }
+
+    @Test
+    void test017IOException() throws IOException {
+        AccountOpeningAppln appln = mockAppln("017");
+        when(setFlags.saveChecks(any())).thenThrow(new IOException("IO fail"));
+
+        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+    }
+
+    @Test
+    void test028IOException() throws IOException {
+        AccountOpeningAppln appln = mockAppln("028");
+        when(saveVKYCDao.saveVKYCDetails(any())).thenThrow(new IOException("IO fail"));
+
+        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+    }
+
+    @Test
+    void test031IOException() throws IOException {
+        AccountOpeningAppln appln = mockAppln("031");
+        when(accountOpeningDAO.saveCustomerSelfie(any())).thenThrow(new IOException("IO fail"));
+
+        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+    }
+
+    @Test
+    void testDefaultCaseSuccess() {
+        AccountOpeningAppln appln = mockAppln("999");
+        when(accountOpeningDAO.savePersonalDetails(any())).thenReturn(true);
+
+        String result = assertDoesNotThrow(() -> accountOpeningSvc.savePersonalData(appln));
+        assertEquals("SAVED", result);
+    }
+}
 	public String savePersonalData(AccountOpeningAppln accountOpeningAppln)
 			throws ServiceBusinessException, NumberFormatException, JsonProcessingException {
 		
