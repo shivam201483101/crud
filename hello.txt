@@ -1,0 +1,349 @@
+
+	public String savePersonalData(AccountOpeningAppln accountOpeningAppln)
+			throws ServiceBusinessException, NumberFormatException, JsonProcessingException {
+		
+		String thisMethod="savePersonalData";
+		FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.METHOD_STARTED.getValue());
+		
+		printAccountOpeningApplnFields(accountOpeningAppln);
+		
+        
+        try {
+        	extendedAccountOpeningValidator.validate(accountOpeningAppln);
+        	FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.VALIDATING.getValue());
+        }catch(JsonProcessingException e) {
+        	FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+        	FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+        	throw new ServiceBusinessException(AccountOpeningConstant.JSON_PROCESSING_EXCEPTION.getValue());
+        }
+        
+		boolean savePersonalDetails = false;
+	
+		OnboardingStatusComposite onboardingStatusComposite = new OnboardingStatusComposite();
+		onboardingStatusComposite.setRefNo(accountOpeningAppln.getLead().getLeadId());
+		String jrnyId = accountOpeningAppln.getLead().getLeadId().substring(5, 8);
+		onboardingStatusComposite.setJourneyId(jrnyId);
+		Optional<OnboardingStatusVo> statusFindById = onboardingStatusRepo
+				.findByOnbrdngSts(accountOpeningAppln.getLead().getLeadId(), jrnyId);
+		Optional<PersonalDtlsVo> customerFindById = customerPersonalDetailsRepo
+				.findById(accountOpeningAppln.getLead().getLeadId());
+		if (statusFindById.isPresent()) {
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					AccountOpeningConstant.CUSTDETAILSPRE.getValue());
+		
+			
+
+		switch (accountOpeningAppln.getState()) {
+
+		case "006":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsPersonal(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "007":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsProfessional(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "008":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsReligion(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "009":
+			savePersonalDetails = savePartialDao.savePartialDetailsAddDetails(accountOpeningAppln,statusFindById);
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			break;
+		case "010":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsCommAdd(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "012":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsNominationPersonal(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "013":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsNomineePermAdd(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+		case "014":
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsGaurdianPersonal(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.NOMINEE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+
+		case "015": 
+			try {
+				savePersonalDetails = savePartialDao.savePartialDetailsGaurdianPermAdd(accountOpeningAppln,statusFindById);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.GAURDIAN_DETAILS_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+ 
+		case "016":
+			savePersonalDetails = accountOpeningDAO.saveBranchDetails(accountOpeningAppln);
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.BRANCH_DETAILS_SAVED.getValue());
+			break;
+		case "017":
+			try {
+				savePersonalDetails = setFlags.saveChecks(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.DECLARATION_SAVED.getValue());
+			}catch(IOException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.IOEXCEPTION.getValue());
+			}
+			break;
+
+		case "028":
+			try {
+				savePersonalDetails = saveVKYCDao.saveVKYCDetails(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.VKYC_SAVED.getValue());
+			}catch(IOException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.IOEXCEPTION.getValue());
+			}
+			break;
+
+		case "031":
+			try {
+				savePersonalDetails = accountOpeningDAO.saveCustomerSelfie(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.CUSTOMERSELFIE_SAVED.getValue());
+			}catch(IOException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.IOEXCEPTION.getValue());
+			}
+			break;
+			
+		default:
+			savePersonalDetails = accountOpeningDAO.savePersonalDetails(accountOpeningAppln);
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.PERSONAL_DETAILS_SAVING.getValue());
+			break;
+		}
+		}
+		if (savePersonalDetails) {
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.PERSONAL_DETAILS_SAVED.getValue());
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.METHOD_END.getValue());
+			return AccountOpeningConstant.SAVED.getValue();
+
+		} else {
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.PERSONAL_DETAILS_NOT_SAVED.getValue());
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.METHOD_END.getValue());
+			return AccountOpeningConstant.NOTSAVED.getValue();
+		}
+	}
+	
+	junit ----- example test class 
+public class SavePartialDAOTest {
+ @BeforeAll
+    public static void init() {
+        sessionMocked = Mockito.mockStatic(SessionContext.class, Mockito.RETURNS_DEEP_STUBS);
+
+    }
+
+    @AfterAll
+    public static void close() {
+        sessionMocked.close();
+    }
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        setFlags=new SetFlags(onboardingStatusRepo,customerPersonalDetailsRepo,customerOnboardingStatusRepo,consentRepo);
+        savePartialDao=new SavePartialDao( customerPersonalDetailsRepo,
+                onboardingStatusRepo,  customerOnboardingStatusRepo,
+                setFlags,  ekycPanDtlsRepository,  saveGaurdianDao,
+                addressDtlsRepo,  consentRepo, savePersonalDtlsDao, nomineeDtlsRepository);
+    }
+ @Test
+    public void testSavePersonalDetails00903() throws ServiceBusinessException, IOException {
+
+        AccountOpeningAppln accountOpeningAppln = new AccountOpeningAppln();
+        Lead lead = new Lead();
+        lead.setLeadId("SBIY2NCA251671306169S1IOWF4U");
+
+        PersonalDtlsVo personalDetails = new PersonalDtlsVo();
+        PersonalDtls personalDtls = new PersonalDtls();
+
+        personalDtls.setMobileNo("+919876543210");
+        personalDtls.setFirstNm("ghh");
+        personalDtls.setMiddleNm("hjh");
+        personalDtls.setLastNm("ugug");
+        personalDtls.setEmail("abc@tcs.com");
+        personalDtls.setRelativeName("Abc");
+        personalDtls.setRelationship("relationship");
+        personalDtls.setDob("01-01-2003");
+        personalDtls.setSalutation("Mr");
+        personalDtls.setRelationType("F");
+        personalDtls.setCategory("NTB");
+        personalDtls.setGender("F");
+        personalDtls.setReligion("H");
+        personalDtls.setMaritalStatus("S");
+        personalDtls.setEducation("02");
+       
+        PermAddress objPermAddress = new PermAddress();
+        objPermAddress.setIspermanentAddressSameAsComm(false);
+        objPermAddress.setAdrsLineOne("123 Main St");
+        objPermAddress.setAdrsLineTwo("Apt 4B");
+        objPermAddress.setFullAddress("123 Main St, Apt 4B, Springfield, IL 62701");
+        objPermAddress.setCountry("USA");
+        objPermAddress.setLocality("Springfield");
+        objPermAddress.setPincode("62701");
+        objPermAddress.setState("4242");
+        objPermAddress.setDistrict("24242");
+        objPermAddress.setSubDistrict("24242");
+        objPermAddress.setTownOrVillage("24242");
+        CommAddress commAddress = new CommAddress();
+
+        commAddress.setValidTill(2025);
+        commAddress.setValidTillDate("01-01-2003");
+        commAddress.setCommAddressAvailable(true);
+        commAddress.setAdrsLineOne("789 Oak St");
+        commAddress.setAdrsLineTwo("Suite 100");
+        commAddress.setFullAddress("789 Oak St, Suite 100, Springfield, IL 62701");
+        commAddress.setCountry("IN");
+        commAddress.setLocality("Springfield");
+        commAddress.setPincode("62701");
+        commAddress.setState("28");
+        commAddress.setDistrict("23");
+        commAddress.setSubDistrict("23");
+        commAddress.setTownOrVillage("23");
+
+        personalDtls.setCommAddress(commAddress);
+        personalDtls.setPermAddress(objPermAddress);
+        AddComposite addPKeys = new AddComposite();
+        addPKeys.setRefNo("SBIY2ESA250831403119PSRKBtem");
+
+        addPKeys.setCustomerType("applcntAdd");
+
+        lead.setPersonalDtls(personalDtls);
+        lead.setBranchDtls(null);
+
+        personalDetails.setfName("John");
+        personalDetails.setlName("Doe");
+        personalDetails.setSalutation("Mr.");
+        personalDetails.setRelationType("Self");
+        personalDetails.setRltveNm("N/A");
+        personalDetails.setEmail("john.doe@example.com");
+        personalDetails.setMblNo(916457286);
+
+        personalDetails.setRlgnCd("C");
+        personalDetails.setMrtlSttsCd("S");
+        personalDetails.setCustType("F");
+        personalDetails.setRlgnCd("R");
+        personalDetails.setDob(LocalDateTime.now());
+        personalDetails.setEdctnCd(3);   
+        AddressDtlsVo addressDtlsVo = new AddressDtlsVo();
+        addressDtlsVo.setAdd1("oak");
+        addressDtlsVo.setAdd2("oak2");
+        addressDtlsVo.setAdd3("hjch");
+        addressDtlsVo.setPrmnAdd("kslj");
+        addressDtlsVo.setSubdist(787879);
+        Map<String, String> bjChannelMap = new HashMap<>();
+        bjChannelMap.put("channelkey", "YONOBRANCH2.0");
+        bjChannelMap.put("channelid", "9002");
+        when(SessionContext.getHttpHeaders()).thenReturn(bjChannelMap);
+
+      
+        EkycPanDtls ekycPanDtls = new EkycPanDtls();
+        ekycPanDtls.setGender("F");
+        SavePartialDao savePartialDao=new SavePartialDao( customerPersonalDetailsRepo,
+                onboardingStatusRepo,  customerOnboardingStatusRepo,
+                setFlags,  ekycPanDtlsRepository,  saveGaurdianDao,
+                addressDtlsRepo,  consentRepo, savePersonalDtlsDao, nomineeDtlsRepository);
+        accountOpeningAppln.setLead(lead);
+        accountOpeningAppln.setState("009");
+
+
+        OnboardingStatusComposite onboardingStatusComposite = new OnboardingStatusComposite();
+        onboardingStatusComposite.setRefNo(accountOpeningAppln.getLead().getLeadId());
+        String jrnyId = accountOpeningAppln.getLead().getLeadId().substring(5, 8);
+        onboardingStatusComposite.setJourneyId(jrnyId);
+        OnboardingStatusVo onboardingStatusVo = new OnboardingStatusVo();
+        onboardingStatusVo.setRefNo(onboardingStatusComposite);
+        OnboardingStatusVo objOnboardingStatusVo=new OnboardingStatusVo();
+        objOnboardingStatusVo.setCraationDate(LocalDateTime.now());
+        objOnboardingStatusVo.setCreatedBy("System");
+        objOnboardingStatusVo.setInitialState("000");
+        objOnboardingStatusVo.setRefNo(onboardingStatusComposite);
+        objOnboardingStatusVo.setStatus("000");
+        objOnboardingStatusVo.setUpdatedBy("System");
+        objOnboardingStatusVo.setUpdationDate(LocalDateTime.now());
+
+        Optional<OnboardingStatusVo> statusFindById = onboardingStatusRepo
+                .findByOnbrdngSts(accountOpeningAppln.getLead().getLeadId(), jrnyId);
+        ConsntTempVo consentVo = new ConsntTempVo();
+        ConsntTempPk csntPk=new ConsntTempPk();
+        csntPk.setJrnyId(jrnyId);
+        csntPk.setRefNo("SBIY2NCA251671306169S1IOWF4U");
+        csntPk.setRmrkKey(ConsntRemarks.PERM_SAMEAS_COMM_ADD.getValue());
+        consentVo.setConsntTempPk(csntPk);
+        consentVo.setRmrkValue(false);
+        consentVo.setCrtdBy("SYSTEM");
+        consentVo.setCrtnDt(LocalDateTime.now());
+        consentVo.setUpdtdDt(LocalDateTime.now());
+        when(addressDtlsRepo.findById(addPKeys)).thenReturn(Optional.empty());
+        when(onboardingStatusRepo.findByOnbrdngSts("SBIY2NCA251671306169S1IOWF4U", "NCA")).thenReturn(Optional.of(onboardingStatusVo));
+        when(customerPersonalDetailsRepo.findById(accountOpeningAppln.getLead().getLeadId()))
+                .thenReturn(Optional.of(personalDetails));
+        when(ekycPanDtlsRepository.findById(any())).thenReturn(Optional.of(ekycPanDtls));
+        when(consentRepo.findByRefNoAndJrnyIdAndRmrkKey(any(),any(),any())).thenReturn(Optional.empty());
+
+        savePartialDao.savePartialDetailsAddDetails(accountOpeningAppln,Optional.of(objOnboardingStatusVo));
+
+    }
+}
