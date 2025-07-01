@@ -1,0 +1,98 @@
+	    i am getting errorfor states 017 028 031
+	 @ParameterizedTest
+	    @ValueSource(strings = {"006", "007", "008","010", "012", "013", "014", "015","017","028","031"})
+	    void testStatesWithServiceBusinessException(String state) throws Exception {
+	        AccountOpeningAppln appln = mockAppln(state);
+	        SetFlags setFlaaas=new SetFlags(onboardingStatusRepo, customerPersonalDetailsRepo, customerOnboardingStatusRepo, consentRepo);
+	        switch (state) {
+	            case "006" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsPersonal(any(), any());
+	            case "007" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsProfessional(any(), any());
+	            case "008" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsReligion(any(), any());
+	            case "010" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsCommAdd(any(), any());
+	            case "012" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsNominationPersonal(any(), any());
+	            case "013" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsNomineePermAdd(any(), any());
+	            case "014" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsGaurdianPersonal(any(), any());
+	            case "015" -> doThrow(new ServiceBusinessException("error")).when(savePartialDao).savePartialDetailsGaurdianPermAdd(any(), any());
+	            case "017" -> doThrow(new RuntimeException("error")).when(setFlaaas).saveChecks(any());
+	            case "028" -> doThrow(new RuntimeException("error")).when(saveVKYCDao).saveVKYCDetails(any());
+	            case "031" -> doThrow(new ServiceBusinessException("error")).when(accountOpeningDAO).saveCustomerSelfie(any());
+	        }
+	        when(onboardingStatusRepo.findByOnbrdngSts(any(), any())).thenReturn(mockOnboardingStatus());
+	        when(customerPersonalDetailsRepo.findById(any())).thenReturn(Optional.empty());
+	        assertThrows(ServiceBusinessException.class, () -> accountOpeningSvc.savePersonalData(appln));
+	    }
+
+
+refernce in code 
+	case "017":
+			try {
+				savePersonalDetails = setFlags.saveChecks(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.DECLARATION_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+
+		case "028":
+			try {
+				savePersonalDetails = saveVKYCDao.saveVKYCDetails(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.VKYC_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+
+		case "031":
+			try {
+				savePersonalDetails = accountOpeningDAO.saveCustomerSelfie(accountOpeningAppln);
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,AccountOpeningConstant.CUSTOMERSELFIE_SAVED.getValue());
+			}catch(ServiceBusinessException e) {
+				FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,AccountOpeningConstant.UNEXPECTED_ERROR.getValue()+ e.getStackTrace());
+				FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(e));
+				throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+			}
+			break;
+	and the methods description is-----------
+public boolean saveChecks(AccountOpeningAppln accountOpeningAppln) throws ServiceBusinessException{
+		String thisMethod = "saveChecks";
+		String leadId=accountOpeningAppln.getLead().getLeadId();
+		FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.METHOD_STARTED.getValue());
+		ServiceBusinessException businessException = new ServiceBusinessException();
+if (statusFindById.isPresent()) {)else {
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.RESOURCE_NOT_FOUND.getValue());
+			businessException.addBizError(erMap.mapCode(jrnyid,AccountOpeningConstant.RESOURCE_NOT_FOUND.getValue()));			
+			FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+}
+public boolean saveVKYCDetails(AccountOpeningAppln accountOpeningAppln)
+			throws ServiceBusinessException {
+		String thisMethod = "saveVKYCDetails";
+		String leadId=accountOpeningAppln.getLead().getLeadId();
+		FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.METHOD_STARTED.getValue());
+		ServiceBusinessException businessException = new ServiceBusinessException();
+}
+
+public boolean saveCustomerSelfie(AccountOpeningAppln accountOpeningAppln)
+			throws ServiceBusinessException, FileNotFoundException{
+		String thisMethod = "saveCustomerSelfie";
+		FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.METHOD_STARTED.getValue());
+		ServiceBusinessException businessException = new ServiceBusinessException();
+		boolean canUpload = DocumentUploadUtility.canUploadDocument(allDocumentRepository,
+				accountOpeningAppln.getLead().getLeadId());
+		if (!canUpload) {
+			FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.CAN_T_UPLOAD_NOW.getValue());
+			businessException.addBizError(GlobalException.UPLOADATTEMPT,
+					TempConst.getMap().get("BLOCK_DURATION_HOURS") + " hours");
+			FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+}
