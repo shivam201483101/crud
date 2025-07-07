@@ -1,4 +1,144 @@
-	private boolean extractedSwitchCase(AccountOpeningAppln accountOpeningAppln,
+private boolean extractedSwitchCase(AccountOpeningAppln accountOpeningAppln,
+        Optional<OnboardingStatusVo> statusFindById)
+        throws JsonProcessingException, ServiceBusinessException, FileNotFoundException {
+
+    String thisMethod = "getPreviewData";
+
+    switch (accountOpeningAppln.getState()) {
+        case "006":
+        case "007":
+        case "008":
+        case "009":
+        case "010":
+        case "012":
+        case "013":
+        case "014":
+        case "015":
+            return handlePartialDetailsCases(accountOpeningAppln, statusFindById, thisMethod);
+
+        case "016":
+        case "017":
+        case "020":
+        case "024":
+        case "028":
+        case "031":
+            return handleRemainingCases(accountOpeningAppln, statusFindById, thisMethod);
+
+        default:
+            FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                    thisMethod, AccountOpeningConstant.PERSONAL_DETAILS_SAVING.getValue());
+            return acntDao.savePersonalDetails(accountOpeningAppln);
+    }
+}
+
+private boolean handlePartialDetailsCases(AccountOpeningAppln accountOpeningAppln,
+        Optional<OnboardingStatusVo> statusFindById, String thisMethod)
+        throws ServiceBusinessException {
+
+    try {
+        switch (accountOpeningAppln.getState()) {
+            case "006":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return spdao.savePartialDetailsPersonal(accountOpeningAppln, statusFindById);
+
+            case "007":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return spdao.savePartialDetailsProfessional(accountOpeningAppln, statusFindById);
+
+            case "008":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return spdao.savePartialDetailsReligion(accountOpeningAppln, statusFindById);
+
+            case "009":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao1.savePartialDetailsAddDetails(accountOpeningAppln, statusFindById);
+
+            case "010":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao1.savePartialDetailsCommAdd(accountOpeningAppln, statusFindById);
+
+            case "012":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao2.savePartialDetailsNominationPersonal(accountOpeningAppln, statusFindById);
+
+            case "013":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao2.savePartialDetailsNomineePermAdd(accountOpeningAppln, statusFindById);
+
+            case "014":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao2.savePartialDetailsGaurdianPersonal(accountOpeningAppln, statusFindById);
+
+            case "015":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return sPDao2.savePartialDetailsGaurdianPermAdd(accountOpeningAppln, statusFindById);
+        }
+    } catch (ServiceBusinessException e) {
+        FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                thisMethod, ExceptionUtils.getStackTrace(e));
+        throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+    }
+    return false;
+}
+
+private boolean handleRemainingCases(AccountOpeningAppln accountOpeningAppln,
+        Optional<OnboardingStatusVo> statusFindById, String thisMethod)
+        throws ServiceBusinessException, FileNotFoundException {
+
+    try {
+        switch (accountOpeningAppln.getState()) {
+            case "016":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.BRANCH_DETAILS_SAVED.getValue());
+                return acntDao.saveBranchDetails(accountOpeningAppln);
+
+            case "017":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.DECLARATION_SAVED.getValue());
+                return setFlags.saveChecks(accountOpeningAppln);
+
+            case "020":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return spd3.saveDebitCardDetails(accountOpeningAppln, statusFindById);
+
+            case "024":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.NOMINEE_SAVED.getValue());
+                return spd3.saveTermsAndCondition(accountOpeningAppln, statusFindById);
+
+            case "028":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.VKYC_SAVED.getValue());
+                return saveVKYCDao.saveVKYCDetails(accountOpeningAppln);
+
+            case "031":
+                FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                        thisMethod, AccountOpeningConstant.CUSTOMERSELFIE_SAVED.getValue());
+                return acntDao.saveCustomerSelfie(accountOpeningAppln);
+        }
+    } catch (ServiceBusinessException e) {
+        FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+                thisMethod, ExceptionUtils.getStackTrace(e));
+        throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+    }
+    return false;
+}
+
+
+
+
+
+private boolean extractedSwitchCase(AccountOpeningAppln accountOpeningAppln,
 			 Optional<OnboardingStatusVo> statusFindById)
 			throws JsonProcessingException, ServiceBusinessException, FileNotFoundException {
 		String thisMethod="getPreviewData";
