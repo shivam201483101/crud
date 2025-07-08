@@ -1,3 +1,50 @@
+
+public boolean savePersonalDetails(AccountOpeningAppln accountOpeningAppln)
+        throws ServiceBusinessException, NumberFormatException, JsonProcessingException {
+
+    String thisMethod = "savePersonalDetails";
+    FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.METHOD_STARTED.getValue());
+    ServiceBusinessException businessException = new ServiceBusinessException();
+    boolean status = false;
+
+    try {
+        // Call all partial details methods sequentially
+        boolean result1 = spdao.savePartialDetailsPersonal(accountOpeningAppln, Optional.empty());
+        boolean result2 = spdao.savePartialDetailsProfessional(accountOpeningAppln, Optional.empty());
+        boolean result3 = spdao.savePartialDetailsReligion(accountOpeningAppln, Optional.empty());
+        boolean result4 = sPDao1.savePartialDetailsAddDetails(accountOpeningAppln, Optional.empty());
+        boolean result5 = sPDao1.savePartialDetailsCommAdd(accountOpeningAppln, Optional.empty());
+        boolean result6 = sPDao2.savePartialDetailsNominationPersonal(accountOpeningAppln, Optional.empty());
+        boolean result7 = sPDao2.savePartialDetailsNomineePermAdd(accountOpeningAppln, Optional.empty());
+        boolean result8 = sPDao2.savePartialDetailsGaurdianPersonal(accountOpeningAppln, Optional.empty());
+        boolean result9 = sPDao2.savePartialDetailsGaurdianPermAdd(accountOpeningAppln, Optional.empty());
+        boolean result10 = acntDao.saveBranchDetails(accountOpeningAppln);
+        boolean result11 = setFlags.saveChecks(accountOpeningAppln);
+        boolean result12 = spd3.saveDebitCardDetails(accountOpeningAppln, Optional.empty());
+        boolean result13 = spd3.saveTermsAndCondition(accountOpeningAppln, Optional.empty());
+        boolean result14 = saveVKYCDao.saveVKYCDetails(accountOpeningAppln, Optional.empty());
+        boolean result15 = acntDao.saveCustomerSelfie(accountOpeningAppln);
+
+        // Combine all results
+        status = result1 || result2 || result3 || result4 || result5 ||
+                 result6 || result7 || result8 || result9 || result10 ||
+                 result11 || result12 || result13 || result14 || result15;
+
+        FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.ALL_METHODS_EXECUTED.getValue());
+    } catch (ServiceBusinessException e) {
+        FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                ExceptionUtils.getStackTrace(e));
+        throw new ServiceBusinessException(AccountOpeningConstant.UNEXPECTED_ERROR.getValue());
+    }
+
+    FLogger.info(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, AccountOpeningConstant.METHOD_END.getValue());
+    return status;
+}
+
+
+
+
+
 private boolean handlePartialDetailsCases(AccountOpeningAppln accountOpeningAppln,
 	        Optional<OnboardingStatusVo> statusFindById)
 	        throws ServiceBusinessException, JsonProcessingException {
