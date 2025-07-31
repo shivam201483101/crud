@@ -1,1 +1,91 @@
 https://www.perplexity.ai/search/list-of-api-with-description-e-wG0rvHMTSC6DK5vqqwBerQ
+
+
+1. Register Mobile
+   Registers a user's mobile number during onboarding or service activation.
+
+2. PAN Validation
+   Validates the user's PAN (Permanent Account Number) for KYC and compliance processes.
+
+3. OTP Generator
+   Generates a One Time Password for secure user authentication.
+
+4. OTP Validator
+   Validates the OTP entered by the user to complete authentication.
+
+5. OTP Resend
+   Resends an OTP when the user requests a new code.
+
+6. Mpin authentication
+   Authenticates the user using their registered Mobile PIN (MPIN).
+
+7. Aadhar Generate Otp
+   Generates an OTP for Aadhaar-based authentication.
+
+8. Aadhar Validate Otp
+   Validates the OTP sent for Aadhaar verification.
+
+9. Adhaar Fetch Data
+   Fetches user's Aadhaar details after successful verification.
+
+10. Aadhaar DOB Status
+    Retrieves the user's date of birth status from Aadhaar records.
+
+11. Biometric aadhar authentication
+    Performs biometric authentication using Aadhaar eKYC.
+
+12. Save OVD Details
+    Saves details of Officially Valid Documents submitted by the user.
+
+13. OVD Get Preview Data
+    Retrieves details of submitted OVDs for preview or verification.
+
+14. Documents Upload
+    Allows user to upload required documents for KYC and verification.
+
+15. Digilocker user registration
+    Registers the user with DigiLocker for secure digital documentation.
+
+16. Digilocker Fetch document
+    Fetches user documents directly from DigiLocker.
+
+17. Digilocker validates Document
+    Validates the authenticity and integrity of DigiLocker-fetched documents.
+
+18. Save Personal Data
+    Saves user's personal information during onboarding or KYC update.
+
+19. Get PreviewData
+    Retrieves saved application or personal data for preview before final submission.
+
+20. Adhaar PreFetch data
+    Initiates pre-fetch of Aadhaar data after preliminary consent and checks.
+
+21. Create Consent
+    Registers user consent for data sharing or KYC-related actions.
+
+22. Query Consent
+    Fetches the current consent status provided by the user.
+
+23. Revoke Consent
+    Allows user to revoke previously given consent for data use.
+
+24. Dedupe Id
+    Checks for duplicates using identification information to prevent multiple records.
+
+25. Mobile dedupe
+    Checks for duplicate mobile numbers to ensure uniqueness in onboarding.
+
+26. Amlock Check
+    Checks if there is an anti-money laundering (AML) lock or related restriction.
+
+27. Amlock Fetch
+    Fetches detailed information about AML lock, if any, on user account.
+
+28. Cersai Enquiry
+    Performs inquiry with CERSAI for lien or charge information during KYC.
+
+29. Fetch customer details for complaint
+    Retrieves user details to facilitate service complaint resolution.
+
+
