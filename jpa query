@@ -1,0 +1,117 @@
+public interface AccountOnboardingStatusRepository extends JpaRepository<AccountOnboardingStatus, String> {
+
+	@Query(value = "SELECT ref_no, cif, accnt_no FROM yono_accnt.accnt_onbrdng_status where cif = :cif LIMIT 1", nativeQuery = true)
+	Optional<CustAccDtls> findByComplaintCif(String cif);
+
+@Table(schema = "yono_accnt", name = "accnt_onbrdng_status")
+public class AccountOnboardingStatus implements Serializable{  
+	
+	private static final long serialVersionUID = 1L;
+
+	@Id 
+	@Column(name = "ref_no")
+	private String refNo;
+	
+	
+	@Column(name = "cif")
+	private Long cif;
+	
+	@Column(name = "accnt_no")
+	private String accntNo;
+
+	@Column(name = "ntwrk_typ_physcl_card")
+	private String ntwrkTypPhysclCard;
+	
+	@Column(name = "vrtl_card_nm")
+	private String vrtlCardNm;
+	
+	@Column(name = "physcl_card_nm")
+	private String physclCardNm;
+		
+	@Column(name = "ntwrk_typ_vrtl_card")
+	private String ntwrkTypVrtlCard;
+
+	
+	@Column(name = "crtd_dt")
+	private LocalDateTime crtnDt;
+	
+	@Column(name = "updtd_dt")
+	private LocalDateTime updtdDt;
+	
+	@Column(name = "amlock_dtls")
+	private String amlockDtls;
+	---------------------------------------------------------------------
+
+public interface AddressDtlsRepo extends JpaRepository<AddressDtlsVo, AddComposite> {
+
+	@Modifying
+	@Transactional
+	@Query(value = "SELECT /*+ INDEX_ASC(yono_cstmr.cstmr_add yono_cstmr.cstmr_add_ref_type_chnl_idx) */ * "
+			+ "FROM yono_cstmr.cstmr_add "
+			+ "WHERE ref_no = :refNo AND type = :type", 
+			nativeQuery = true)
+	List<AddressDtlsVo> getAddDtls(@Param("refNo") String refNo, 
+			@Param("type") String type);
+
+	@Transactional
+	@Modifying
+	@Query(value = "DELETE FROM yono_cstmr.cstmr_add WHERE ref_no = :refNo", nativeQuery = true)
+	void deleteByRefNo(@Param("refNo") String refNo);
+
+public class AddressDtlsVo implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@EmbeddedId
+	private AddComposite refNo;
+
+	@Column(name = "prmn_add")
+	private String prmnAdd;
+
+	@Column(name = "pincode")
+	private String pinCode;
+
+	@Column(name = "state_code")
+	private String state;
+
+	@Column(name = "dist_code")
+	private String district;
+
+	@Column(name = "vill_code")
+	private String village;
+	
+	@Column(name = "subdt_code")
+	private String subdist;
+
+	@Column(name = "add1")
+	private String add1;
+
+	@Column(name = "add2")
+	private String add2;
+
+	@Column(name = "add3")
+	private String add3;
+	
+	@Column(name = "jrny_chnl")
+	private int journeyChannel;
+
+	
+	@Column(insertable=false, updatable=false, name = "type")
+	private String type;
+	
+	
+	@Column(name = "vld_till_dt")
+	private LocalDateTime validTillDate;
+
+public class AddComposite implements Serializable {
+
+
+	private static final long serialVersionUID = 1L;
+
+	@Column(name = "ref_no")
+	private String refNo;
+	
+	@Column(name = "type")
+	private String customerType;
+	----------------------------------------
+
