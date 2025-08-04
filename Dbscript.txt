@@ -1,0 +1,36 @@
+CREATE OR REPLACE FUNCTION delete_lead_data(p_ref_no VARCHAR)
+RETURNS void AS
+$$
+DECLARE
+    v_mbl_no VARCHAR;
+BEGIN
+    -- 1. Get the mobile number associated with the lead id (ref_no)
+    SELECT mbl_no INTO v_mbl_no
+    FROM yono_cstmr.mbl_dtls
+    WHERE ref_no = p_ref_no;
+
+    -- 2. Execute DELETE operations for all tables using either ref_no or mbl_no as per requirement
+    DELETE FROM yono_cstmr.mbl_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.cstmr_pd WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.ekyc_pan_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.onbrdg_pan_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.onbrdg_status WHERE ref_no = p_ref_no;
+    DELETE FROM yono_accnt.accnt_onbrdg_status WHERE ref_no = p_ref_no;
+    DELETE FROM yono_rstr.mbl_blk WHERE mbl_no = v_mbl_no;
+
+    DELETE FROM yono_accnt.nominee_dtls WHERE lead_id = p_ref_no;
+    DELETE FROM yono_csnet.mgmt_consnt WHERE lead_id = p_ref_no;
+    DELETE FROM yono_cstmr.casa_brnch_status WHERE lead_id = p_ref_no;
+    DELETE FROM yono_cstmr.ovd WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.branch_mnrc WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.cstmr_add WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.mkr_ckbcr_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.ekyc_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_cstmr.aadhaar_dtls WHERE ref_no = p_ref_no;
+    DELETE FROM yono_mstr.aadhaar_txn_history WHERE ref_no = p_ref_no;
+    DELETE FROM yono_mstr.email_mstr WHERE ref_no = p_ref_no;
+    DELETE FROM yono_dcmnt.edms_doc_dtls WHERE ref_no = p_ref_no;
+
+END;
+$$
+LANGUAGE plpgsql;
