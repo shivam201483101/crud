@@ -1,0 +1,100 @@
+package com.sbi.yono.common.utility;
+
+import com.tcs.techbone.exception.ServiceBusinessException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+/**
+ * Tests for DeleteUtility covering:
+ *  - success path (if you already have it),
+ *  - inner catch (CallableStatement.execute throws),
+ *  - outer catch (jdbcTemplate.execute throws IllegalArgumentException).
+ */
+@ExtendWith(MockitoExtension.class)
+class DeleteUtilityCatchBlocksTest {
+
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
+    // We'll construct DeleteUtility manually in setUp to pass mocked jdbcTemplate
+    private DeleteUtility deleteUtility;
+
+    @BeforeEach
+    void setUp() {
+        deleteUtility = new DeleteUtility(jdbcTemplate);
+    }
+
+    /**
+     * Inner catch: simulate CallableStatement.execute() throwing an Exception.
+     * Expectation: DeleteUtility should catch and rethrow a RuntimeException with FAILEDTOEXCEUTE message.
+     */
+    @Test
+    void whenCallableStatementExecuteThrows_thenInnerCatchRuns_andRuntimeExceptionIsThrown() throws Exception {
+        String leadId = "SBIY2NCA252171208650ZNAwBEqX";
+
+        // Mock Connection and CallableStatement
+        Connection mockConnection = mock(Connection.class);
+        CallableStatement mockCallableStmt = mock(CallableStatement.class);
+
+        // Make jdbcTemplate.execute(...) invoke the provided ConnectionCallback with our mockConnection
+        when(jdbcTemplate.execute(ArgumentMatchers.<ConnectionCallback<?>>any())).thenAnswer(invocation -> {
+            ConnectionCallback<?> callback = invocation.getArgument(0);
+            return callback.doInConnection(mockConnection);
+        });
+
+        // When prepareCall is invoked, return the mocked CallableStatement
+        when(mockConnection.prepareCall("{CALL yono_cstmr.delete_lead_data(?)}")).thenReturn(mockCallableStmt);
+
+        // simulate setString works
+        doNothing().when(mockCallableStmt).setString(1, leadId);
+
+        // simulate execute throws an exception to trigger inner catch
+        RuntimeException simulated = new RuntimeException("simulated execute failure");
+        doThrow(simulated).when(mockCallableStmt).execute();
+
+        // Now call and assert RuntimeException is thrown with FAILEDTOEXCEUTE in message
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> deleteUtility.deleteFunction(leadId));
+        assertTrue(thrown.getMessage().contains(Constant.FAILEDTOEXCEUTE.getValue()));
+
+        // Verify that the callable was prepared and setString and execute were called
+        verify(mockConnection).prepareCall("{CALL yono_cstmr.delete_lead_data(?)}");
+        verify(mockCallableStmt).setString(1, leadId);
+        verify(mockCallableStmt).execute();
+
+        // close should be invoked by try-with-resources even when execute throws
+        verify(mockCallableStmt).close();
+    }
+
+    /**
+     * Outer catch: simulate jdbcTemplate.execute(...) throwing IllegalArgumentException.
+     * Expectation: DeleteUtility should catch this and throw ServiceBusinessException.
+     */
+    @Test
+    void whenJdbcTemplateExecuteThrowsIllegalArgumentException_thenOuterCatchRuns_andServiceBusinessExceptionThrown() {
+        String leadId = "SBIY2NCA252171208650ZNAwBEqX";
+
+        // Simulate jdbcTemplate.execute throwing IllegalArgumentException
+        when(jdbcTemplate.execute(ArgumentMatchers.<ConnectionCallback<?>>any()))
+                .thenThrow(new IllegalArgumentException("simulated jdbcTemplate.execute failure"));
+
+        // Expect ServiceBusinessException
+        assertThrows(ServiceBusinessException.class, () -> deleteUtility.deleteFunction(leadId));
+
+        // We can't verify connection/callable interactions because execute never invoked the callback.
+        // Optionally verify that execute was called once.
+        verify(jdbcTemplate).execute(ArgumentMatchers.<ConnectionCallback<?>>any());
+    }
+}
