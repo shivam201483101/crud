@@ -1,0 +1,56 @@
+package com.sbi.yono.common.utility;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import com.sbi.yono.common.accountopening.AccountOpeningConstant;
+import com.tcs.techbone.exception.ServiceBusinessException;
+import com.tcs.techbone.logger.FLogger;
+
+@Component
+public class DeleteUtility {
+	
+	private JdbcTemplate jdbcTemplate;
+	ErrorCodeMapper erMap = new ErrorCodeMapper();
+
+	public String deleteFunction(String leadId) throws ServiceBusinessException {
+		
+		String thisMethod="fetchAadharData";
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,Constant.METHOD_STARTED.getValue());
+		ServiceBusinessException businessException = new ServiceBusinessException();
+		try {
+		
+			jdbcTemplate.execute(new ConnectionCallback<Void>() {
+				@Override
+				public Void doInConnection(Connection connection) {
+					try(CallableStatement cs=connection.prepareCall("{CALL yono_cstmr.delete_lead_data(?)}")){
+						cs.setString(1,leadId);
+						cs.execute();
+					}catch(Exception e) {
+						businessException.addBizError(erMap.mapCode(leadId.substring(5, 8),"Failed to exceute store procedure"));				       
+						FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+				                thisMethod, ExceptionUtils.getStackTrace(e));
+						throw new RuntimeException("Failed to exceute store procedure",e);
+					}
+					return null;
+				}
+			});
+			
+		}catch (IllegalArgumentException e) {		
+			
+			FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+		
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,Constant.METHOD_END.getValue());
+		return Constant.SUCCESS.getValue();
+		
+	}
+
+}
