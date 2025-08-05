@@ -18,32 +18,47 @@ public class DeleteUtility {
 	private JdbcTemplate jdbcTemplate;
 	ErrorCodeMapper erMap = new ErrorCodeMapper();
 
+	public DeleteUtility(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate=jdbcTemplate;
+	}
+	/**
+	 * Method: deleteFunction  Delete all entry from database for starting new application
+	 * @param leadId string
+	 * @throws ServiceBusinessException
+	 */
 	public String deleteFunction(String leadId) throws ServiceBusinessException {
 		
-		String thisMethod="fetchAadharData";
+		String thisMethod="deleteFunction";
 		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,Constant.METHOD_STARTED.getValue());
 		ServiceBusinessException businessException = new ServiceBusinessException();
 		try {
-		
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constant.EXCUTESTOREPROCEDURE.getValue());
 			jdbcTemplate.execute(new ConnectionCallback<Void>() {
 				@Override
 				public Void doInConnection(Connection connection) {
 					try(CallableStatement cs=connection.prepareCall("{CALL yono_cstmr.delete_lead_data(?)}")){
+						FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+								Constant.EXCUTINGSTOREPROCEDURE.getValue());
 						cs.setString(1,leadId);
 						cs.execute();
 					}catch(Exception e) {
-						businessException.addBizError(erMap.mapCode(leadId.substring(5, 8),"Failed to exceute store procedure"));				       
-						FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(),
+						businessException.addBizError(erMap.mapCode(leadId.substring(5, 8),Constant.FAILEDTOEXCEUTE.getValue()));
+						FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+								Constant.EXCUTIONFAILED.getValue());
+						FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(),
 				                thisMethod, ExceptionUtils.getStackTrace(e));
-						throw new RuntimeException("Failed to exceute store procedure",e);
+						throw new RuntimeException(Constant.FAILEDTOEXCEUTE.getValue(),e);
 					}
 					return null;
 				}
 			});
 			
 		}catch (IllegalArgumentException e) {		
-			
-			FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+			businessException.addBizError(erMap.mapCode(leadId.substring(5, 8),Constant.FAILEDTOEXCEUTE.getValue()));	
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constant.EXCUTIONFAILED.getValue());
+			FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
 					ExceptionUtils.getStackTrace(businessException));
 			throw businessException;
 		}
@@ -58,61 +73,63 @@ public class DeleteUtility {
 
 
 
+
 package com.sbi.yono.common.utility;
 
-import com.sbi.yono.common.accountopening.AccountOpeningConstant;
-import com.tcs.techbone.exception.ServiceBusinessException;
-import com.tcs.techbone.logger.FLogger;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.jdbc.core.JdbcTemplate;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 
 public class DeleteUtilityTest {
 
+	@Mock
     private JdbcTemplate jdbcTemplate;
+	@InjectMocks
     private DeleteUtility deleteUtility;
-
+	
     @BeforeEach
     public void setUp() {
-        jdbcTemplate = mock(JdbcTemplate.class);
+    	
+        jdbcTemplate = Mockito.mock(JdbcTemplate.class);
         deleteUtility = new DeleteUtility(jdbcTemplate);
+    	
     }
-
+  
     @Test
     public void testDeleteFunction_returnsSuccess() throws Exception {
-        String leadId = "LEAD123456789012345678901234";
-
-        // Mock Connection and CallableStatement
+        String leadId = "SBIY2NCA252171208650ZNAwBEqX";
+      
         Connection mockConnection = mock(Connection.class);
-        CallableStatement mockCallableStmt = mock(CallableStatement.class);
-
-        // Simulate behavior
-        when(mockConnection.prepareCall("{CALL yono_cstmr.delete_lead_data(?)}"))
-                .thenReturn(mockCallableStmt);
-
-        // Simulate JdbcTemplate.execute() behavior
-        when(jdbcTemplate.execute(any())).thenAnswer(invocation -> {
-            ((org.springframework.jdbc.core.ConnectionCallback<?>) invocation.getArgument(0)).doInConnection(mockConnection);
-            return null;
+        CallableStatement mockCallableStmt = mock(CallableStatement.class);      
+           
+        when(jdbcTemplate.execute(ArgumentMatchers.<ConnectionCallback<Void>>any())).thenAnswer(invocation -> {
+        	ConnectionCallback<Void> callback=invocation.getArgument(0);
+        	return null;
         });
-
-        // Execute the deleteFunction
-        String result = deleteUtility.deleteFunction(leadId);
-
-        // Assert
-        assertEquals("SUCCESS", result);
-
-        // Verify interactions
+        when(mockConnection.prepareCall("{CALL yono_cstmr.delete_lead_data(?)}"))
+        .thenReturn(mockCallableStmt);  
+        doNothing().when(mockCallableStmt).setString(1, leadId);
+        doNothing().when(mockCallableStmt).execute();
+        String result = deleteUtility.deleteFunction(leadId);       
+        assertEquals("SUCCESS", result);       
         verify(mockConnection).prepareCall("{CALL yono_cstmr.delete_lead_data(?)}");
         verify(mockCallableStmt).setString(1, leadId);
         verify(mockCallableStmt).execute();
-        verify(mockCallableStmt).close(); // optional, depending on try-with-resources
+        verify(mockCallableStmt).close(); 
     }
 }
