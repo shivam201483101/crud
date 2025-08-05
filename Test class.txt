@@ -1,0 +1,143 @@
+package com.sbi.yono.common.utility;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+/**
+ * Test DeleteUtility using Mockito for JdbcTemplate and dynamic proxies for JDBC interfaces.
+ */
+@ExtendWith(MockitoExtension.class)
+class DeleteUtilityMockitoProxyTest {
+
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
+    private DeleteUtility deleteUtility;
+    private TestFlags flags;
+
+    @BeforeEach
+    void setUp() {
+        flags = new TestFlags();
+        deleteUtility = new DeleteUtility(jdbcTemplate);
+    }
+
+    @Test
+    void testDeleteFunction_returnsSuccess_andCallsStoredProc() throws Exception {
+        String leadId = "SBIY2NCA252171208650ZNAwBEqX";
+
+        // Create a Connection proxy which handles prepareCall(...) to return a CallableStatement proxy
+        Connection connectionProxy = (Connection) Proxy.newProxyInstance(
+                Connection.class.getClassLoader(),
+                new Class[]{Connection.class},
+                new ConnectionInvocationHandler(flags)
+        );
+
+        // When jdbcTemplate.execute is invoked with any ConnectionCallback, call its doInConnection with our proxy
+        when(jdbcTemplate.execute(ArgumentMatchers.<ConnectionCallback<?>>any())).thenAnswer(invocation -> {
+            ConnectionCallback<?> callback = invocation.getArgument(0);
+            return callback.doInConnection(connectionProxy);
+        });
+
+        // Execute
+        String result = deleteUtility.deleteFunction(leadId);
+
+        // Assertions
+        assertEquals(Constant.SUCCESS.getValue(), result, "Should return SUCCESS");
+
+        assertTrue(flags.prepareCallInvoked, "prepareCall should be invoked on connection");
+        assertTrue(flags.setStringInvoked, "setString should be invoked on callable statement");
+        assertTrue(flags.executeInvoked, "execute should be invoked on callable statement");
+        assertTrue(flags.closeInvoked, "close should be invoked on callable statement");
+        assertEquals(leadId, flags.lastSetStringValue, "setString must be called with leadId");
+    }
+
+    // flags container
+    static class TestFlags {
+        volatile boolean prepareCallInvoked = false;
+        volatile boolean setStringInvoked = false;
+        volatile boolean executeInvoked = false;
+        volatile boolean closeInvoked = false;
+        volatile String lastSetStringValue = null;
+        volatile String preparedSql = null;
+    }
+
+    // InvocationHandler for Connection proxy
+    static class ConnectionInvocationHandler implements InvocationHandler {
+        private final TestFlags flags;
+
+        ConnectionInvocationHandler(TestFlags flags) { this.flags = flags; }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            String name = method.getName();
+
+            // handle prepareCall(String)
+            if ("prepareCall".equals(name) && args != null && args.length == 1 && args[0] instanceof String) {
+                String sql = (String) args[0];
+                flags.prepareCallInvoked = true;
+                flags.preparedSql = sql;
+
+                // return a CallableStatement proxy
+                return Proxy.newProxyInstance(
+                        CallableStatement.class.getClassLoader(),
+                        new Class[]{CallableStatement.class},
+                        new CallableStatementInvocationHandler(flags)
+                );
+            }
+
+            // close, commit, etc. can be no-ops
+            if ("close".equals(name)) {
+                return null;
+            }
+
+            // For any other method used unexpectedly, throw to surface missing impl
+            throw new UnsupportedOperationException("Method " + name + " not implemented in Connection proxy");
+        }
+    }
+
+    // InvocationHandler for CallableStatement proxy
+    static class CallableStatementInvocationHandler implements InvocationHandler {
+        private final TestFlags flags;
+
+        CallableStatementInvocationHandler(TestFlags flags) { this.flags = flags; }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            String name = method.getName();
+
+            if ("setString".equals(name) && args != null && args.length == 2 && args[0] instanceof Integer && args[1] instanceof String) {
+                flags.setStringInvoked = true;
+                flags.lastSetStringValue = (String) args[1];
+                return null;
+            }
+
+            if ("execute".equals(name) && (args == null || args.length == 0)) {
+                flags.executeInvoked = true;
+                return Boolean.TRUE;
+            }
+
+            if ("close".equals(name) && (args == null || args.length == 0)) {
+                flags.closeInvoked = true;
+                return null;
+            }
+
+            // Throw for other methods to detect unexpected calls
+            throw new UnsupportedOperationException("Method " + name + " not implemented in CallableStatement proxy");
+        }
+    }
+}
