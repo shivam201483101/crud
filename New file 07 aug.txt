@@ -1,0 +1,13 @@
+SELECT DISTINCT * 
+FROM /BranchMaster b 
+WHERE 
+  b.live_flag = 'Y' AND 
+  (
+    LOWER(b.branchname) LIKE '%maha%' OR 
+    LOWER(b.address1) LIKE '%maha%' OR 
+    LOWER(b.address2) LIKE '%maha%' OR 
+    LOWER(b.address3) LIKE '%maha%' OR 
+    LOWER(b.address4) LIKE '%maha%'
+  ) AND 
+  b.crcl_code IN SET ('001', '002', '003', '004', '005', '006', '007', '008', '009', '011', '012', '013', '014', '015', '017', '019', '027')
+LIMIT 5
