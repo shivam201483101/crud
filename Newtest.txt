@@ -1,3 +1,69 @@
+
+package com.sbi.yono.common.utility;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+class DeleteUtilityTest {
+
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
+    private StoredProcedureQuery storedProcedureQuery;
+
+    @InjectMocks
+    private DeleteUtility deleteUtility;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        deleteUtility = new DeleteUtility(entityManager);
+    }
+
+    @Test
+    void testDeleteFunction_success() {
+        String leadId = "SBI123456789";
+        when(entityManager.createStoredProcedureQuery("yono_cstmr.delete_lead_data"))
+                .thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.registerStoredProcedureParameter(1, String.class, ParameterMode.IN))
+                .thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.setParameter(1, leadId)).thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.execute()).thenReturn(true);
+
+        String result = deleteUtility.deleteFunction(leadId);
+
+        assertEquals("SUCCESS", result);
+        verify(entityManager).createStoredProcedureQuery("yono_cstmr.delete_lead_data");
+    }
+
+    @Test
+    void testDeleteFunction_failureExecuteReturnsFalse() {
+        String leadId = "SBI123456789";
+        when(entityManager.createStoredProcedureQuery("yono_cstmr.delete_lead_data"))
+                .thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.registerStoredProcedureParameter(1, String.class, ParameterMode.IN))
+                .thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.setParameter(1, leadId)).thenReturn(storedProcedureQuery);
+        when(storedProcedureQuery.execute()).thenReturn(false); // simulate failure
+
+        String result = deleteUtility.deleteFunction(leadId);
+
+        assertEquals("SUCCESS", result); // Still returns success as per your code logic
+        verify(entityManager).createStoredProcedureQuery("yono_cstmr.delete_lead_data");
+    }
+}
+
+
+
+
 package com.sbi.yono.common.utility;
 
 import com.tcs.techbone.exception.ServiceBusinessException;
