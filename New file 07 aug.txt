@@ -11,3 +11,32 @@ WHERE
   ) AND 
   b.crcl_code IN SET ('001', '002', '003', '004', '005', '006', '007', '008', '009', '011', '012', '013', '014', '015', '017', '019', '027')
 LIMIT 5
+
+
+SELECT  branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd FROM 
+			( SELECT  branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd FROM 
+			((Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select c.* FROM yono_mstr.brnch_mstr c where c.branchname ~* 'nerul' union 
+			Select c.* FROM yono_mstr.brnch_mstr c where c.branchname ~* 'nerul' union 
+			Select c.* FROM yono_mstr.brnch_mstr c where c.branchname ~* 'nerul'
+			)order by branchname ~* 'nerul' desc ) where live_flag = 'Y' and
+			crcl_code IN ('001','002', '003', '004', '005', '006','007','008','009','011','012','013', '014', '015', '017', '019','027')) union 
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select c.* FROM yono_mstr.brnch_mstr c where c.address1 ~*  'nerul' union Select  c.* FROM yono_mstr.brnch_mstr c where c.address1 ~* 'nerul' union Select  c.* FROM yono_mstr.brnch_mstr c where c.address1 ~* 'nerul' 
+			)order by branchname ~* 'nerul' desc )where live_flag = 'Y' and 
+			crcl_code IN ('001','002', '003', '004', '005', '006','007','008','009','011','012','013', '014', '015', '017', '019','027')) union
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			(Select c.* FROM yono_mstr.brnch_mstr c where c.address2 ~* 'nerul' union
+			Select c.* FROM yono_mstr.brnch_mstr c where c.address2 ~* 'nerul' union 
+			Select c.* FROM yono_mstr.brnch_mstr c where c.address2 ~* 'nerul'
+			)order by branchname ~* 'nerul' desc )where live_flag = 'Y' and 
+			 crcl_code IN ('001','002', '003', '004', '005', '006','007','008','009','011','012','013', '014', '015', '017', '019','027')) union
+			(Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from
+			( Select branchcode, branchname, address1, address2, address3, address4, pincode, crcl_code, live_flag,branch_type_cd from 
+			( Select c.* FROM yono_mstr.brnch_mstr c where c.address3 ~* 'nerul' union
+			Select c.* FROM yono_mstr.brnch_mstr c where c.address3 ~* 'nerul' union Select  c.* FROM yono_mstr.brnch_mstr c where c.address3 ~* 'nerul'
+			) order by branchname ~* 'nerul' desc ) where live_flag = 'Y' and crcl_code IN ('001','002', '003', '004', '005', '006','007','008','009','011','012','013', '014', '015', '017', '019','027')) 
+			) order by branchname ~* 'nerul' desc ) order by branchname ~* 'nerul' desc limit 5
