@@ -1,0 +1,110 @@
+i am getting bad request becuause it accepts only .jpg extension but when we click photo and upload it by default get passed as this extension .jpg_compress.jpg so i want add this extension also in multipart java  and before returning objDocInp convert it into only .jpg remove .jpg_compress
+
+curl --location 'https://beta.gateway.apps.dev1.yono2.bank.sbi:8443/Gateway/API/customers/ntb/casa/document/upload' \
+--header 'channelkey: sbikey' \
+--header 'Content-Type: application/json' \
+--header 'Authorization:
+--header 'apiver: v1.0' \
+--header 'channelver: v1.0' \
+--header 'Cookie: d9ce64da7149ceb49e7a7461b948f4e8=cdede997c75f6ffb92e296d719e96c98; 425c26d38cb96b8d4afc4ffacc43b1f3=490224f3bc675e6aa9dfb00c2a71507c' \
+--form 'requestMessage="{
+    \"header\": {
+        \"deviceInfo\": {
+            \"browserVersion\": \"45\",
+            \"browser\": \"Chrome\"
+        },
+        \"requestNo\": \"2345cslcv67890\"
+    }, 
+\"body\": {
+        \"leadId\": \"SBIY2NCA252311808162MEhzjyub\",
+            \"idType\": \"DC_012\",
+                \"fileName\": \"Photo\"
+                   
+    }
+}"' \
+--form 'fileInputId="file2"' \
+--form 'file2=@"/D:/abc_154654126752735_798gdhgsd.jpg_compress.jpg"'
+
+
+
+
+public Map<String, String> setEdmsDocUploadInput(String leadId, String idType, String fileName,
+			FileMultipartData multiPartList) throws ServiceBusinessException {
+		String thisMethod = "fetchMultipartImage";
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+				Constant.METHOD_STARTED.getValue());
+		ServiceBusinessException businessException = new ServiceBusinessException();
+
+		InputValidator inval = new InputValidator();
+		ExtendedInputValidator extendedInputValidator = new ExtendedInputValidator();
+		if (!inval.refvalidator(leadId)) {
+			businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.LEADID.getValue());
+			FLogger.info(Constants.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+					Constants.RECEIVED_LEAD_ID_IS_INVALID.getValue()+Constant.METHOD_END.getValue());
+			ExceptionUtils.getStackTrace(businessException);
+			FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+		if (!extendedInputValidator.isValidIdType(idType)) {
+			businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.IDTYPE.getValue());
+			FLogger.info(Constants.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+					Constants.RECEIVED_ID_TYPE_IS_INVALID.getValue()+Constant.METHOD_END.getValue());
+			FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+
+		if (fileName == null || fileName.isEmpty()) {
+			businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.FILENAME.getValue());
+			FLogger.info(Constants.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+					Constants.RECEIVED_FILE_NAME_IS_INVALID.getValue()+Constant.METHOD_END.getValue());
+			FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			throw businessException;
+		}
+		Map<String, String> objDocInp = new HashMap<>();
+		ErrorCodeMapper ermap = new ErrorCodeMapper();
+		List<FileData> fileDataList = multiPartList.getFileMultipart();
+		InputStream stream = null;
+		if (!fileDataList.isEmpty()) {
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constants.FILE_DATA_LIST_IS_NOT_EMPTY.getValue());
+			try {
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						Constants.MULTIPART_BASE_64_FILE_FETCH_SUCCESSFULLY.getValue());
+				FileData filedata = fileDataList.get(0);
+				stream = filedata.getInputStream();
+				byte[] bytes = IOUtils.toByteArray(stream);
+				String base64Encoded = Base64.getEncoder().encodeToString(bytes);
+				objDocInp.put(Constants.BASE64_STRING.getValue(), base64Encoded);
+				objDocInp.put(Constants.EXTENSION.getValue(),
+						fileDataList.get(0).getFileName().split(Constants.DOT.getValue())[1]
+								.equals(Constants.JPG.getValue()) ? Constants.JPEG.getValue()
+										: Constants.PREPEND_DOT.getValue()
+												+ fileDataList.get(0).getFileName().split(Constants.DOT.getValue())[1]);
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						Constant.METHOD_END.getValue());
+				return objDocInp;
+			} catch (Exception ex) {
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						Constants.INVALID_MULTIPART_DATA.getValue());
+				businessException
+						.addBizError(ermap.mapCode(leadId.substring(5, 8), Constants.EMPTY_MULTIPART.getValue()));
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						Constant.METHOD_END.getValue());
+				FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						ExceptionUtils.getStackTrace(ex));
+				throw businessException;
+			}
+		} else {
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constants.INVALID_MULTIPART_DATA.getValue());
+			businessException.addBizError(ermap.mapCode(leadId.substring(5, 8), Constants.EMPTY_MULTIPART.getValue()));
+			FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					ExceptionUtils.getStackTrace(businessException));
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constant.METHOD_END.getValue());
+			throw businessException;
+		}
+	}
