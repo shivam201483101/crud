@@ -108,3 +108,116 @@ public Map<String, String> setEdmsDocUploadInput(String leadId, String idType, S
 			throw businessException;
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+public Map<String, String> setEdmsDocUploadInput(String leadId, String idType, String fileName,
+                                                 FileMultipartData multiPartList) throws ServiceBusinessException {
+    String thisMethod = "fetchMultipartImage";
+    FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+            Constant.METHOD_STARTED.getValue());
+    ServiceBusinessException businessException = new ServiceBusinessException();
+
+    InputValidator inval = new InputValidator();
+    ExtendedInputValidator extendedInputValidator = new ExtendedInputValidator();
+    if (!inval.refvalidator(leadId)) {
+        businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.LEADID.getValue());
+        FLogger.info(Constants.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+                Constants.RECEIVED_LEAD_ID_IS_INVALID.getValue() + Constant.METHOD_END.getValue());
+        ExceptionUtils.getStackTrace(businessException);
+        FLogger.error(AccountOpeningConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                ExceptionUtils.getStackTrace(businessException));
+        throw businessException;
+    }
+    if (!extendedInputValidator.isValidIdType(idType)) {
+        businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.IDTYPE.getValue());
+        FLogger.info(Constants.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+                Constants.RECEIVED_ID_TYPE_IS_INVALID.getValue() + Constant.METHOD_END.getValue());
+        FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                ExceptionUtils.getStackTrace(businessException));
+        throw businessException;
+    }
+
+    if (fileName == null || fileName.isEmpty()) {
+        businessException.addBizError(GlobalException.INPUTVALIDATION, Constants.FILENAME.getValue());
+        FLogger.info(Constant.TIER_NAME.getValue(), thisMethod, this.getClass().getName(),
+                Constants.RECEIVED_FILE_NAME_IS_INVALID.getValue() + Constant.METHOD_END.getValue());
+        FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                ExceptionUtils.getStackTrace(businessException));
+        throw businessException;
+    }
+
+    Map<String, String> objDocInp = new HashMap<>();
+    ErrorCodeMapper ermap = new ErrorCodeMapper();
+    List<FileData> fileDataList = multiPartList.getFileMultipart();
+    InputStream stream = null;
+
+    if (!fileDataList.isEmpty()) {
+        FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                Constants.FILE_DATA_LIST_IS_NOT_EMPTY.getValue());
+        try {
+            FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                    Constants.MULTIPART_BASE_64_FILE_FETCH_SUCCESSFULLY.getValue());
+            FileData filedata = fileDataList.get(0);
+            stream = filedata.getInputStream();
+            byte[] bytes = IOUtils.toByteArray(stream);
+            String base64Encoded = Base64.getEncoder().encodeToString(bytes);
+            objDocInp.put(Constants.BASE64_STRING.getValue(), base64Encoded);
+
+            // -------- FIX START (extension normalization) --------
+            String originalFileName = filedata.getFileName();
+            String extension = "";
+
+            if (originalFileName != null && originalFileName.contains(".")) {
+                // handle special compress case
+                if (originalFileName.toLowerCase().endsWith(".jpg_compress.jpg")) {
+                    extension = "jpeg";
+                } else {
+                    // get last part after final dot
+                    extension = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+                    if (extension.equalsIgnoreCase("jpg")) {
+                        extension = "jpeg";
+                    } else {
+                        extension = "." + extension;
+                    }
+                }
+            }
+
+            objDocInp.put(Constants.EXTENSION.getValue(), extension);
+            // -------- FIX END --------
+
+            FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                    Constant.METHOD_END.getValue());
+            return objDocInp;
+        } catch (Exception ex) {
+            FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                    Constants.INVALID_MULTIPART_DATA.getValue());
+            businessException.addBizError(
+                    ermap.mapCode(leadId.substring(5, 8), Constants.EMPTY_MULTIPART.getValue()));
+            FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                    Constant.METHOD_END.getValue());
+            FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                    ExceptionUtils.getStackTrace(ex));
+            throw businessException;
+        }
+    } else {
+        FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                Constants.INVALID_MULTIPART_DATA.getValue());
+        businessException.addBizError(
+                ermap.mapCode(leadId.substring(5, 8), Constants.EMPTY_MULTIPART.getValue()));
+        FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                ExceptionUtils.getStackTrace(businessException));
+        FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+                Constant.METHOD_END.getValue());
+        throw businessException;
+    }
+}
