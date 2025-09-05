@@ -1,0 +1,19 @@
+curl --location 'http://localhost:8090/common/APIServices/customers/ntb/casa/document/upload' \
+--header 'datatype: application/json' \
+--header 'channelid: 9002' \
+--header 'txnId: fv32801706608001265119' \
+--header 'tokentype: jwt' \
+--header 'channelkey: YONOAPP2.0' \
+--header 'sessiontokenid;' \
+--header 'httpheaderinfo: {"content-length":"10","datatype":"application/json","channelkey":"YONOAPP2.0","postman-token":"2898565b-c332-4147-9468-e25314575c27","host":"localhost:8080","content-type":"application/json","client_ip":"0.0.0.0.0.0.0.1","transactionid":"fv32801706608001265119"}' \
+--form 'requestMessage="{
+   
+\"body\": {
+        \"leadId\": \"SBIY2NCA252481809589pbNHLZ74\",
+            \"idType\": \"DC_012\",
+                \"fileName\": \"Photo\"
+                   
+    }
+}"' \
+--form 'fileInputId="file2"' \
+--form 'file2=@"/D:/2sepcommon/abc.jpg"'
