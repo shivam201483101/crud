@@ -1,0 +1,121 @@
+	error in invoke service :The method invokeService(String, Map<String,Object>) in the type ServiceInvoker is not applicable for the arguments (String, JSONObject)
+
+Error occured while invoking API service 
+java.lang.NullPointerException: Cannot invoke "com.tcs.techbone.service.BaseServiceFactoryImpl.createFactory(String[])" because "this.m_objBaseServiceFactory" is null
+	at com.tcs.techbone.service.connector.ServiceInvoker.invokeService(ServiceInvoker.java:80)
+	at com.sbi.yono.common.accountopening.SetFlags.prepareRequestForAadharVault(SetFlags.java:302)
+
+
+public String prepareRequestForAadharVault(String refKey) throws ServiceBusinessException, ServiceException {
+		String thisMethod=Constant.FETCHAADHAR.getValue();
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.METHOD_STARTED.getValue());
+		
+	if(refKey!=null) {
+		Map<String, Object> req = new HashMap<>();
+		Map<String, Object> fetchDataReq = new HashMap<>();
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUSTOMER_DETAILS_ARE_PRESENT.getValue());
+		String aadharNo =  refKey;
+		Gson gson = new Gson();
+		fetchDataReq.put("dataType",TempConst.getMap().get(Constant.DATATYPE.getValue()));
+		fetchDataReq.put("vaultKey",TempConst.getMap().get(Constant.VAULTKEY.getValue()));
+		fetchDataReq.put("referenceKey",aadharNo);
+		fetchDataReq.put("uidTokenRequest",TempConst.getMap().get(Constant.RESIDENTCONSENT.getValue()));
+		FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), Constant.FETCHDATA_API.getValue(), Constant.METHOD_END.getValue());
+		
+		req.put("fetchDataReq", gson.toJson(fetchDataReq)); 
+		try{
+		Map<String, Object> CustInfo=invokeService("eis_customer_aadharvault_fetchdata", new JSONObject(fetchDataReq));
+		
+		if ( null!=CustInfo) {
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUST_INFO_IS_PRESENT.getValue());
+			if (CustInfo.get(Constant.RESPONSESTS.getValue()).equals(Constant.SUCCESS.getValue())) {
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUST_INFO_STATUS_IS_AADHAR.getValue());
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.METHOD_END.getValue());
+					return  (String) CustInfo.get(Constant.DATAVALUE.getValue());
+			} else {
+					FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUSTOMER_INFO_IS_NULL.getValue()+Constant.METHOD_END.getValue());
+					return  refKey;
+			}
+		}
+		else {
+				FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUSTOMER_INFO_IS_NULL.getValue()+Constant.METHOD_END.getValue());
+				return  refKey;
+		}
+		
+		}catch (ServiceException e) {
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Arrays.toString(e.getStackTrace()));
+			ExceptionUtils.getStackTrace(e);
+			ServiceBusinessException businessException = new ServiceBusinessException();
+			businessException.addBizError(GlobalException.DIGILOCKER);
+			FLogger.error(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Arrays.toString(e.getStackTrace()));
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					Constant.METHOD_END.getValue());
+			throw businessException;
+		}
+		
+	}else {
+			FLogger.info(Constant.TIER_NAME.getValue(), this.getClass().getName(),thisMethod,Constant.CUSTOMER_INFO_IS_NULL.getValue()+Constant.METHOD_END.getValue());
+			return  refKey;
+	}
+			
+	
+	
+	}
+
+
+<service-list>
+	<service>
+		<service-name>eis_customer_aadharvault_fetchdata</service-name>
+		<service-id>eis_customer_aadharvault_fetchdata</service-id>
+		<service-type>CUSTOM</service-type>
+		<factory-class>com.sbi.yono.integration.eis.service.EISServiceFactory</factory-class>
+		<invocation-mode>sync</invocation-mode>
+		<customendpoint>
+				<!-- Add service input params as like in any other factory -->
+				<service-input>	
+					<parameter>
+						<parameter-name>ftchdtResp</parameter-name>
+						<parameter-class>java.lang.String</parameter-class>
+					</parameter>
+					
+			</service-input>
+		<!-- factory configurations for custom configurations to be provided externally -->
+				<factory-custom-config>
+					<factory-config>
+						<config-name>env-server-address</config-name>
+						<config-value>${eis-server}</config-value>
+					</factory-config>
+					<factory-config>
+						<config-name>api-url</config-name>
+						<config-value>${eis-fetchAadhar}</config-value>
+					</factory-config>
+								
+				</factory-custom-config>
+				<timeout>2</timeout>
+			</customendpoint>
+		<service-output>
+			<parameter>
+				<parameter-name>CustInfo</parameter-name>
+				<parameter-class>java.lang.String</parameter-class>
+			</parameter>
+		</service-output>
+		<!-- Explicit transformer must  -->
+			<transformers>
+				<input-transformer-class datatype="application/json">com.sbi.yono.integration.eis.transformer.aadharvault.fetchdata.EISAadhaarVaultFetchDataInputTransformer</input-transformer-class>
+				<output-transformer-class datatype="application/json">com.sbi.yono.integration.eis.transformer.aadharvault.storedata.EISDedupOutputTransformer</output-transformer-class>
+			</transformers>
+			<!--  -->
+			<cache-configuration>
+				<cache-enabled>false</cache-enabled>
+				<cache-key>abc</cache-key>
+				<cache-operation-type>get</cache-operation-type>
+			</cache-configuration>
+			<!-- Custom thread pool required for executing this service -->
+			<thread-pool>
+				<!-- thread pool name will internally use service-id -->
+				<thread-pool-name>eis-executor-pool</thread-pool-name>
+			</thread-pool>
+	</service>
+	
