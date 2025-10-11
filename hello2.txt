@@ -1,3 +1,73 @@
+Excellent 👏 — since you’re a Java Spring Boot developer who played a key role in backend, integration, SIT/UAT testing, and fast delivery of changes, here are review-ready, simple, professional 2–3 line answers for each attribute — written in a natural, developer tone (no heavy English, but still impressive):
+
+
+---
+
+1. Analytical Ability
+
+> I always analyze issues logically before coding or fixing. During SIT and UAT testing, I identified root causes quickly and provided solutions that helped the frontend and QA teams move faster. I make sure every change is backed by proper understanding of data and impact.
+
+
+
+
+---
+
+2. Coaching
+
+> I guided new team members in understanding the Current Account journey and common registry flow. I shared my knowledge about API design and database structure, which helped them deliver faster and with fewer errors.
+
+
+
+
+---
+
+3. Continual Learning
+
+> I keep learning new Spring Boot features, API best practices, and tools like JFrog and OpenShift to improve delivery. I stay updated with coding standards and project requirements to give better technical solutions.
+
+
+
+
+---
+
+4. Customer Focus
+
+> I understand how backend changes affect the customer experience on the YONO 2.0 app. I make sure every fix or new feature works smoothly for end users and always complete urgent customer requirements on time.
+
+
+
+
+---
+
+5. Innovation and Creativity
+
+> I often look for simpler and faster ways to solve backend issues. I suggested better ways to handle integration errors and optimized API responses, improving both speed and maintainability.
+
+
+
+
+---
+
+6. Planning and Organising
+
+> I plan my tasks based on priority and impact. During continuous UAT changes and DB updates, I managed my work to ensure nothing was missed and deliveries were completed within timelines.
+
+
+
+
+---
+
+7. Values / Conduct
+
+> I always follow project guidelines and coding best practices. I take ownership of my work and complete it with honesty, responsibility, and respect for my team and deadlines.
+
+
+
+
+---
+
+Would you like me to write a short “Overall Summary / Key Highlights” (3–4 lines) you can add at the end of your performance form to wrap up your achievements neatly?
+
 	    i am getting errorfor states 017 028 031
 	 @ParameterizedTest
 	    @ValueSource(strings = {"006", "007", "008","010", "012", "013", "014", "015","017","028","031"})
