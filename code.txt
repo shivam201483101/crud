@@ -1,4 +1,35 @@
-if (optionalRegMobDtls.isPresent()) {
+{
+  "SOURCE_ID": "Y2",
+  "DESTINATION": "CKYC",
+  "TXN_TYPE": "DOWNLOAD",
+  "TXN_SUB_TYPE": "CERSAI_DETAILS",
+  "REQUEST_REFERENCE_NUMBER": "REF987654321",
+  "EIS_PAYLOAD": {
+    "AUTH_FACTOR": "9876543210",
+    "AUTH_FACTOR_TYPE": "03",
+    "BRANCH_CODE": "80150",
+    "CHANNEL_ID": "LOCAL",
+    "CKYC_NO": "1234567890123456",
+    "DATE_TIME": "2025-10-10T10:30:00",
+    "REQUEST_ID": "REQ123456789",
+    "REQUEST_REFERENCE_NUMBER": "REF987654321"
+  }
+}
+{
+  "response": {
+    "ckycPayload": {
+      "authFactor": "9876543210",
+      "authFactorType": "03",
+      "branchCode": "80150",
+      "channelId": "LOCAL",
+      "ckycNo": "1234567890123456",
+      "dateTime": "2025-10-10T10:30:00",
+      "requestId": "REQ123456789",
+      "requestReferenceNumber": "REF987654321"
+    }
+  }
+}
+(optionalRegMobDtls.isPresent()) {
 					CkycAuthUtils ckycAuthUtils = new CkycAuthUtils();
 					CersaiGenerateOtpReq cersaiGenerateOtpReq = new CersaiGenerateOtpReq();
 					cersaiGenerateOtpReq.setAuthFactor(optionalRegMobDtls.get().getRegisterMobileNoDetailsPkeys().getMblNo().substring(3,13).replace(Constant.MOBNO.getValue(), ""));
