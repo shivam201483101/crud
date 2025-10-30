@@ -1,0 +1,46 @@
+if (optionalRegMobDtls.isPresent()) {
+					CkycAuthUtils ckycAuthUtils = new CkycAuthUtils();
+					CersaiGenerateOtpReq cersaiGenerateOtpReq = new CersaiGenerateOtpReq();
+					cersaiGenerateOtpReq.setAuthFactor(optionalRegMobDtls.get().getRegisterMobileNoDetailsPkeys().getMblNo().substring(3,13).replace(Constant.MOBNO.getValue(), ""));
+					cersaiGenerateOtpReq.setBranchCode("80150");
+					cersaiGenerateOtpReq.setAuthFactorType("03");
+					cersaiGenerateOtpReq.setChannelId("LOCAL");
+					cersaiGenerateOtpReq.setCkycNo(ckycNo);
+					String uniqueNumber = ckycAuthUtils.generateUniqueNumber();
+					cersaiGenerateOtpReq.setRequestId(uniqueNumber);
+					cersaiGenerateOtpReq.setRequestReferenceNumber(ckycAuthUtils.onbordingRefNo());
+					cersaiGenerateOtpReq.setDateTime(LocalDateTime.now().toString());
+					
+					CkycDwnldReq ckycDwnldReq = new CkycDwnldReq();
+					Gson gson = new Gson();
+					ckycDwnldReq.setCkycPayload(cersaiGenerateOtpReq);
+					
+					System.out.println(ckycDwnldReq.toString());
+					return gson.toJson(ckycDwnldReq);
+				}
+
+
+//model public class CkycDwnldReq implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private CersaiGenerateOtpReq ckycPayload;
+	private CersaiValidateOtpReq ckycPayloadValidate;
+}  public class CersaiGenerateOtpReq {
+	
+	private String authFactor;
+	private String authFactorType;
+	private String branchCode;
+	private String channelId;
+	private String ckycNo;
+	private String dateTime;
+	private String requestId;
+	private String requestReferenceNumber;}public class CersaiValidateOtpReq {
+
+	private String channelId;
+	private String dateTime;
+	private String otp;
+	private String requestId;
+	private String requestReferenceNumber;
+	private String validate;
+}
