@@ -1,0 +1,147 @@
+	writ junit for each if block and postive and negaetive casese,
+@Service
+public class CkycGenerateOtpSvc{
+	
+	private transient RegisterMobDetailsRepository mobRepo;
+	private transient TempBlockRepository tempBlockRepository;
+	private transient AadharTxnHistoryRepo aadharTxnHistoryRepo;
+	private transient CkycAuthUtils ckycAuthUtils;
+
+	public CkycGenerateOtpSvc(RegisterMobDetailsRepository mobRepo, TempBlockRepository tempBlockRepository,AadharTxnHistoryRepo aadharTxnHistoryRepo,CkycAuthUtils ckycAuthUtils) {
+		this.mobRepo = mobRepo;
+		this.tempBlockRepository = tempBlockRepository;
+		this.aadharTxnHistoryRepo = aadharTxnHistoryRepo;
+		this.ckycAuthUtils=ckycAuthUtils;
+	}
+	
+	/**
+	 * Method Name: generateOtp
+	 * @param leadId: customer onboarding number
+	 * @param ckycNo: Customer CKYC Number
+	 * @return Request bean for generate otp
+	 * @throws ServiceBusinessException
+	 */
+	public String generateOtp(String leadId, String ckycNo) throws ServiceBusinessException{
+		String thisMethod=CkycConstant.GENERATE_OTP_METHOD;
+		ServiceBusinessException businessException = new ServiceBusinessException();
+		InputValidator inputValidator = new InputValidator();
+		FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, CkycConstant.METHOD_STARTED.getValue());
+		Optional<TempBlock> tempBlock = tempBlockRepository.findById(leadId);
+		CkycAuthDao ckycAuthDao = new CkycAuthDao(tempBlockRepository);
+		
+		if(!ckycAuthUtils.resendOtp(leadId)) {
+			FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					CkycConstant.ADD_ENTRY_IN_RESEND_OTP_CASE);
+            businessException.addBizError(GlobalException.MAXOTP_ATTEMPTS);
+            throw businessException;
+		}
+
+		if ((tempBlock.isEmpty()) || ((!tempBlock.isEmpty()) && (ckycAuthDao.getTempBlock(leadId)))) {
+			FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					CkycConstant.CKYC_NUMBER_NOT_BLOCKED);
+			if(inputValidator.refvalidator(leadId) && !(leadId.isEmpty()) && (ckycNo.length()==14||ckycNo.length()==16)) {
+				FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						CkycConstant.INPUTS_ARE_VALID_FOR_CKYC_AUTHENTICATION);
+				Optional<RegisterMobileNoDetails> optionalMob = mobRepo.findByRefNo(leadId);
+				
+				if (optionalMob.isPresent()) {
+					FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+							CkycConstant.RECORDS_ARE_AVAILABLE_FOR_CUSTOMER_ONBOARDING);
+					CkycAuthUtils ckycAuthUtils = new CkycAuthUtils(null);
+					CersaiGenerateOtpReq cersaiGenerateOtpReq = new CersaiGenerateOtpReq();
+					cersaiGenerateOtpReq.setAuthFactor(optionalMob.get().getRegisterMobileNoDetailsPkeys().getMblNo().replace(CkycConstant.MOBNO.getValue(), CkycConstant.REPLACEMENT));
+					cersaiGenerateOtpReq.setBranchCode(CkycConstant.BRNCHCODE);
+					cersaiGenerateOtpReq.setAuthFactorType(CkycConstant.AFT);
+					cersaiGenerateOtpReq.setChannelId(CkycConstant.LOCAL);
+					cersaiGenerateOtpReq.setCkycNo(ckycNo);
+					String uniqueNumber = ckycAuthUtils.generateUniqueNumber();
+					cersaiGenerateOtpReq.setRequestId(uniqueNumber);
+					cersaiGenerateOtpReq.setRequestReferenceNumber(ckycAuthUtils.onbordingRefNo());
+					cersaiGenerateOtpReq.setDateTime(LocalDateTime.now().toString());
+					
+					CkycDwnldReq ckycDwnldReq = new CkycDwnldReq();
+					Gson gson = new Gson();
+					ckycDwnldReq.setCkycPayload(cersaiGenerateOtpReq);
+					FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod, CkycConstant.METHOD_END.getValue());
+					return gson.toJson(ckycDwnldReq);
+				}else {
+					FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+							CkycConstant.RECORDS_ARE_NOT_AVAILABLE_FOR_CUSTOMER_ONBOARDING);
+					businessException.addBizError(GlobalException.RESOURCE_NOT_FOUND);
+					throw businessException;
+				}
+				
+			}
+			else {
+				FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+						CkycConstant.INVALID_INPUT_FOR_LEAD_ID_OR_CKYC_NO);
+				businessException.addBizError(GlobalException.INPUTVALIDATION,CkycConstant.LEAD_ID_OR_CKYC_NO);
+				throw businessException;
+			}
+			
+		}else {
+			FLogger.info(CkycConstant.TIER_NAME.getValue(), this.getClass().getName(), thisMethod,
+					CkycConstant.ATTEMPTS_EXHAUSTED_FOR_CKYC);
+			businessException.addBizError(GlobalException.ATTEMPTSEXHAUSTEDADHR);
+			throw businessException;
+		}
+		
+
+	}
+--------------reference teset class junit
+public class CkycGenerateOtpSvcTest {
+
+	@Mock
+	private  RegisterMobDetailsRepository registerMobileRepository;
+
+	@Mock
+	public AadharTxnHistoryRepo aadharTxnHistoryRepo;
+
+	@Mock
+	private TempBlockRepository tempBlockRepository;
+	@Mock
+	private CkycAuthDao ckycAuthDao ;
+	@Mock
+	private CkycAuthUtils ckycAuthUtils;
+	@InjectMocks
+	private CkycGenerateOtpSvc ckycGenerateOtpSvc;
+
+
+reference test class
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+//		TempConst.getMap().put("REGEX", "^(?![0-9]*$)[a-zA-Z0-9]+$");
+		ckycGenerateOtpSvc = new CkycGenerateOtpSvc(registerMobileRepository, tempBlockRepository, aadharTxnHistoryRepo, ckycAuthUtils);
+		ckycAuthDao=new CkycAuthDao(tempBlockRepository);
+		new ObjectMapper();
+	}
+	
+	@Test
+	void generateOtpTest() throws ServiceBusinessException {
+		String leadId="SBIY2NCA252881710686yBKIrnzM";
+		String ckycNo="20050106836342";
+		TempBlock tempBlock=new TempBlock();
+		tempBlock.setUid(leadId);
+		tempBlock.setBlockTime("2025-10-28T16:50:48.669949002");
+		
+		CustomerOnboarding customerOnboarding=new CustomerOnboarding();
+		customerOnboarding.setOnboardingRefNo(leadId);
+		customerOnboarding.setMobileNo("+919874563214");
+		
+		CersaiGenerateOtpReq cersaiGenerateOtpReq = new CersaiGenerateOtpReq();
+		cersaiGenerateOtpReq.setAuthFactor("+919874563214");
+		cersaiGenerateOtpReq.setAuthFactorType("03");
+		cersaiGenerateOtpReq.setBranchCode("80150");
+		when(tempBlockRepository.findById(leadId)).thenReturn(Optional.of(tempBlock));
+		RegisterMobileNoDetails registerMobileNoDetails=new RegisterMobileNoDetails();
+		RegisterMobileNoDetailsPkeys registerMobileNoDetailsPkeys=new RegisterMobileNoDetailsPkeys(); 
+		registerMobileNoDetailsPkeys.setMblNo("+919874563214");
+		registerMobileNoDetailsPkeys.setJrnyId("NCA");
+		registerMobileNoDetails.setRegisterMobileNoDetailsPkeys(registerMobileNoDetailsPkeys);
+		when(ckycAuthDao.getTempBlock(leadId)).thenReturn(true);
+		when(registerMobileRepository.findByRefNo(leadId)).thenReturn(Optional.of(registerMobileNoDetails));
+		
+		ckycGenerateOtpSvc.generateOtp(leadId, ckycNo);
+	}
+	
