@@ -1,0 +1,97 @@
+public class AddressFormatter {
+
+    public static class AddressData {
+        private final String line1;
+        private final String line2;
+        private final String line3;
+        private final String fullAddress;
+
+        public AddressData(String line1, String line2, String line3, String fullAddress) {
+            this.line1 = line1;
+            this.line2 = line2;
+            this.line3 = line3;
+            this.fullAddress = fullAddress;
+        }
+
+        public String getLine1() { return line1; }
+        public String getLine2() { return line2; }
+        public String getLine3() { return line3; }
+        public String getFullAddress() { return fullAddress; }
+
+        @Override
+        public String toString() {
+            return "Line1: " + line1 + "\n" +
+                   "Line2: " + line2 + "\n" +
+                   "Line3: " + line3 + "\n" +
+                   "Full:  " + fullAddress;
+        }
+    }
+
+    public static AddressData formatAddress(String rawAddress) {
+        if (rawAddress == null || rawAddress.isBlank()) {
+            return new AddressData("", "", "", "");
+        }
+
+        // Step 1️⃣ Trim and normalize spaces
+        String cleaned = rawAddress.trim().replaceAll("\\s+", " ");
+
+        // Step 2️⃣ Decide split size based on total length
+        int totalLength = cleaned.length();
+        int splitSize;
+        if (totalLength <= 30) splitSize = 10;
+        else if (totalLength <= 60) splitSize = 20;
+        else splitSize = 40;  // for 120 and above
+
+        // Step 3️⃣ Limit total to 120 chars (ignore after)
+        if (cleaned.length() > 120) {
+            cleaned = cleaned.substring(0, 120);
+            int lastSpace = cleaned.lastIndexOf(' ');
+            if (lastSpace > 0) {
+                cleaned = cleaned.substring(0, lastSpace);
+            }
+        }
+
+        // Step 4️⃣ Split into 3 word-safe lines based on splitSize
+        String[] words = cleaned.split(" ");
+        StringBuilder line1 = new StringBuilder();
+        StringBuilder line2 = new StringBuilder();
+        StringBuilder line3 = new StringBuilder();
+
+        StringBuilder current = line1;
+        for (String word : words) {
+            // If current line is full, move to next one
+            if (current.length() + word.length() + 1 > splitSize) {
+                if (current == line1) current = line2;
+                else if (current == line2) current = line3;
+                else break; // already filled 3 lines, ignore rest
+            }
+
+            if (current.length() > 0) current.append(" ");
+            current.append(word);
+        }
+
+        // Step 5️⃣ Construct final fullAddress (joined lines)
+        String fullAddress = String.join(" ",
+                line1.toString(),
+                line2.toString(),
+                line3.toString()).trim();
+
+        return new AddressData(
+                line1.toString(),
+                line2.toString(),
+                line3.toString(),
+                fullAddress
+        );
+    }
+
+    // 🔍 Quick test
+    public static void main(String[] args) {
+        String address1 = "  Sector 21 B Chandigarh Near Lake Beautiful Road No 12  ";
+        String address2 = "Flat No 402 Tower 9 Green Valley Apartments Sector 45 Gurugram Haryana Near Metro Station India 122003 Landmark Opposite Park View";
+        String address3 = "Tiny street name"; // short example
+
+        System.out.println("=== Example 1 ===\n" + formatAddress(address1));
+        System.out.println("\n=== Example 2 ===\n" + formatAddress(address2));
+        System.out.println("\n=== Example 3 ===\n" + formatAddress(address3));
+    }
+}
