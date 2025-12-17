@@ -1,0 +1,90 @@
+previous there was only one table cstmr_onboarding where there wwas column last_updated and column status ,
+now it has been split into two table yono_cstmr.mbl_dtls  & yono_cstmr.onbrdng_status where last updated now is updtd_dt and status to initial_state in onbrdng_status and mbl_no column is now in mbl_dtls
+
+so i want to create store procedure where i can get both the column and store in my_record where it checks initial_state not in ('049','055') form onbrdng_status and get mbl_no form mbl_dtls table 
+a sample previous store procedure is given below rewrite it,
+
+SELECT ref_no, jrny_id, status, initial_state, updtd_by, crtd_by, clnt_ip_addr, crtd_dt, updtd_dt
+	FROM yono_cstmr.onbrdng_status;
+
+SELECT ref_no, mode, jrny_id, mbl_no, updt_dt, atmpt_cnt, crtd_dt, status
+	FROM yono_cstmr.mbl_dtls;
+
+-- PROCEDURE: yono_cstmr.delete_ntb_ref()
+
+-- DROP PROCEDURE IF EXISTS yono_cstmr.delete_ntb_ref();
+
+CREATE OR REPLACE PROCEDURE yono_cstmr.delete_ntb_ref(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+    my_record RECORD;
+BEGIN
+    FOR my_record IN SELECT mbl_no,ref_no FROM yono_cstmr.mbl_dtls WHERE updt_dt < NOW() - INTERVAL '30 days' and  status not in ('049','055') 
+    LOOP
+        RAISE NOTICE 'Processing ID: %', my_record.ref_no;
+DECLARE 
+BEGIN
+    DELETE FROM yono_accnt.accnt_onbrdng_status 
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_accnt.accnt_onbrdng_status';
+    DELETE FROM yono_accnt.nominee_dtls 
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_accnt.nominee_dtls';
+    DELETE FROM yono_rstr.mbl_blk
+    WHERE mbl_no = my_record.mbl_no;
+RAISE NOTICE 'Processing ID: deleted from yono_rstr.mbl_blk';
+    DELETE FROM yono_rstr.aadhar_block
+    WHERE uid = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_rstr.aadhar_block';
+    DELETE FROM yono_rstr.aadhar_txn_history
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_rstr.aadhar_txn_history';
+    DELETE FROM yono_rstr.otp_requests
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_rstr.otp_requests';
+     DELETE FROM yono_cstmr.branch_status_dtls 
+     WHERE ref_no = my_record.ref_no;
+ RAISE NOTICE 'Processing ID: deleted from yono_cstmr.branch_status_dtls';
+     DELETE FROM yono_cstmr.mkr_chckr_dtls 
+     WHERE ref_no = my_record.ref_no;
+ RAISE NOTICE 'Processing ID: deleted from yono_cstmr.mkr_chckr_dtls';
+    DELETE FROM yono_cstmr.cstmr_pd
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.cstmr_pd';
+    DELETE FROM yono_cstmr.cstmr_add
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.cstmr_add';
+    DELETE FROM yono_cstmr.ekyc_pan_dtls
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.ekyc_pan_dtls';
+    DELETE FROM yono_cstmr.onbrdng_status
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.onbrdng_status';
+    DELETE FROM yono_cstmr.cstmr_onbrdng_hstry
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.cstmr_onbrdng_hstry';
+    DELETE FROM yono_cstmr.ovd
+    WHERE ref_no=my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.ovd';
+    DELETE FROM yono_cstmr.branch_rmrk
+    WHERE ref_no=my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.branch_rmrk';
+    DELETE FROM yono_cstmr.vkyc_dtls 
+    WHERE ref_no = my_record.ref_no;
+RAISE NOTICE 'Processing ID: deleted from yono_cstmr.vkyc_dtls';
+
+END;
+    END LOOP;
+END;
+$BODY$;
+ALTER PROCEDURE yono_cstmr.delete_ntb_ref()
+    OWNER TO yono_promoter;
+
+GRANT EXECUTE ON PROCEDURE yono_cstmr.delete_ntb_ref() TO PUBLIC;
+
+GRANT EXECUTE ON PROCEDURE yono_cstmr.delete_ntb_ref() TO txn1_usr;
+
+GRANT EXECUTE ON PROCEDURE yono_cstmr.delete_ntb_ref() TO yono_promoter;
+
