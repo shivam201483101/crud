@@ -1,25 +1,27 @@
--- PROCEDURE: yono_cstmr.archive_application()
+-- PROCEDURE: yono_cstmr.archive_completed_applications()
 
--- DROP PROCEDURE IF EXISTS yono_cstmr.archive_application();
+-- DROP PROCEDURE IF EXISTS yono_cstmr.archive_completed_applications();
 
-CREATE OR REPLACE PROCEDURE yono_cstmr.archive_application(
+CREATE OR REPLACE PROCEDURE yono_cstmr.archive_completed_applications(
 	)
 LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
-    my_record RECORD;
+    elementCount INTEGER;
 BEGIN
-    FOR my_record IN SELECT mbl_no,ref_no FROM yono_cstmr.cstmr_onbrdng WHERE last_updtd_dt < NOW() - INTERVAL '2 days' and  status not in ('055')
-    LOOP
-        RAISE NOTICE 'Processing ID: %', my_record.ref_no;	
-		DECLARE 
-BEGIN
- 
 
-	
-END;
-    END LOOP;
+SELECT count(*) into elementCount FROM yono_cstmr.cstmr_onbrdng WHERE last_updtd_dt < NOW() - INTERVAL '30 days' and  status in ('055');
+RAISE NOTICE 'total elements to archive %',elementCount;
+
+    INSERT INTO yono_cstmr.cstmr_onbrdng_arch
+    SELECT * FROM yono_cstmr.cstmr_onbrdng WHERE last_updtd_dt < NOW() - INTERVAL '30 days' and  status in ('055');
+RAISE NOTICE 'records moved';
+
+    DELETE FROM yono_cstmr.cstmr_onbrdng
+    WHERE last_updtd_dt < NOW() - INTERVAL '30 days' and  status in ('055');
+    RAISE NOTICE 'records deleted';
+
 END;
 $BODY$;
-ALTER PROCEDURE yono_cstmr.archive_application()
-    OWNER TO appmicro;
+ALTER PROCEDURE yono_cstmr.archive_completed_applications()
+    OWNER TO enterprisedb;
