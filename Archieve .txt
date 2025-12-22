@@ -1,0 +1,85 @@
+-- ===============================
+-- CREATE ARCHIVE SCHEMA
+-- ===============================
+CREATE SCHEMA IF NOT EXISTS yono_archive;
+
+-- ===============================
+-- CORE DRIVER TABLES
+-- ===============================
+CREATE TABLE IF NOT EXISTS yono_archive.onbrdng_status_arch
+(LIKE yono_cstmr.onbrdng_status INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.mbl_dtls_arch
+(LIKE yono_cstmr.mbl_dtls INCLUDING ALL);
+
+-- ===============================
+-- ACCOUNT SCHEMA TABLES
+-- ===============================
+CREATE TABLE IF NOT EXISTS yono_archive.accnt_onbrdng_status_arch
+(LIKE yono_accnt.accnt_onbrdng_status INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.nominee_dtls_arch
+(LIKE yono_accnt.nominee_dtls INCLUDING ALL);
+
+-- ===============================
+-- DOCUMENT SCHEMA TABLES
+-- ===============================
+CREATE TABLE IF NOT EXISTS yono_archive.edms_doc_dtls_arch
+(LIKE yono_dcmnt.edms_doc_dtls INCLUDING ALL);
+
+-- ===============================
+-- RESTRICTION / SECURITY TABLES
+-- ===============================
+CREATE TABLE IF NOT EXISTS yono_archive.mbl_blk_arch
+(LIKE yono_rstr.mbl_blk INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.aadhar_block_arch
+(LIKE yono_rstr.aadhar_block INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.aadhar_txn_history_arch
+(LIKE yono_rstr.aadhar_txn_history INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.otp_requests_arch
+(LIKE yono_rstr.otp_requests INCLUDING ALL);
+
+-- ===============================
+-- CUSTOMER SCHEMA TABLES
+-- ===============================
+CREATE TABLE IF NOT EXISTS yono_archive.nominee_details_arch
+(LIKE yono_cstmr.nominee_details INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.ckyc_dtls_arch
+(LIKE yono_cstmr.ckyc_dtls INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.branch_status_dtls_arch
+(LIKE yono_cstmr.branch_status_dtls INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.mkr_chckr_dtls_arch
+(LIKE yono_cstmr.mkr_chckr_dtls INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.cstmr_pd_arch
+(LIKE yono_cstmr.cstmr_pd INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.cstmr_add_arch
+(LIKE yono_cstmr.cstmr_add INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.ekyc_pan_dtls_arch
+(LIKE yono_cstmr.ekyc_pan_dtls INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.cstmr_onbrdng_hstry_arch
+(LIKE yono_cstmr.cstmr_onbrdng_hstry INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.ovd_arch
+(LIKE yono_cstmr.ovd INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.branch_rmrk_arch
+(LIKE yono_cstmr.branch_rmrk INCLUDING ALL);
+
+CREATE TABLE IF NOT EXISTS yono_archive.vkyc_dtls_arch
+(LIKE yono_cstmr.vkyc_dtls INCLUDING ALL);
+
+-- ===============================
+-- OPTIONAL: ARCHIVE TIMESTAMP
+-- ===============================
+ALTER TABLE yono_archive.onbrdng_status_arch
+ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP DEFAULT now();
