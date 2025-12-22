@@ -1,11 +1,16 @@
-CREATE OR REPLACE PROCEDURE yono_cstmr.delete_ntb_ref()
-LANGUAGE plpgsql
+
+-- PROCEDURE: yono_cstmr.delete_ntb_ref_ca()
+
+-- DROP PROCEDURE IF EXISTS yono_cstmr.delete_ntb_ref_ca();
+
+CREATE OR REPLACE PROCEDURE yono_cstmr.delete_ntb_ref_ca()
+LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
     my_record RECORD;
 BEGIN
     FOR my_record IN
-        SELECT 
+        SELECT
             os.ref_no,
             md.mbl_no
         FROM yono_cstmr.onbrdng_status os
@@ -15,62 +20,76 @@ BEGIN
           AND os.initial_state NOT IN ('049','055')
     LOOP
         RAISE NOTICE 'Processing ID: %', my_record.ref_no;
-
+ 
         BEGIN
-            DELETE FROM yono_accnt.accnt_onbrdng_status 
+            DELETE FROM yono_accnt.accnt_onbrdng_status
             WHERE ref_no = my_record.ref_no;
-
-            DELETE FROM yono_accnt.nominee_dtls 
+ 
+            DELETE FROM yono_accnt.nominee_dtls
+            WHERE ref_no = my_record.ref_no;
+           
+      DELETE FROM yono_dcmnt.edms_doc_dtls
             WHERE ref_no = my_record.ref_no;
 
             DELETE FROM yono_rstr.mbl_blk
             WHERE mbl_no = my_record.mbl_no;
-
+ 
             DELETE FROM yono_rstr.aadhar_block
             WHERE uid = my_record.ref_no;
-
+ 
             DELETE FROM yono_rstr.aadhar_txn_history
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_rstr.otp_requests
             WHERE ref_no = my_record.ref_no;
-
-            DELETE FROM yono_cstmr.branch_status_dtls 
+ 
+      DELETE FROM yono_cstmr.mbl_dtls  
             WHERE ref_no = my_record.ref_no;
 
-            DELETE FROM yono_cstmr.mkr_chckr_dtls 
+      DELETE FROM yono_cstmr.nominee_details
+            WHERE lead_id = my_record.ref_no;
+
+       DELETE FROM yono_cstmr.ckyc_dtls  
             WHERE ref_no = my_record.ref_no;
 
+            DELETE FROM yono_cstmr.branch_status_dtls
+            WHERE ref_no = my_record.ref_no;
+ 
+            DELETE FROM yono_cstmr.mkr_chckr_dtls
+            WHERE ref_no = my_record.ref_no;
+ 
             DELETE FROM yono_cstmr.cstmr_pd
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.cstmr_add
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.ekyc_pan_dtls
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.onbrdng_status
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.cstmr_onbrdng_hstry
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.ovd
             WHERE ref_no = my_record.ref_no;
-
+ 
             DELETE FROM yono_cstmr.branch_rmrk
             WHERE ref_no = my_record.ref_no;
-
-            DELETE FROM yono_cstmr.vkyc_dtls 
+ 
+            DELETE FROM yono_cstmr.vkyc_dtls
             WHERE ref_no = my_record.ref_no;
-
+ 
             RAISE NOTICE 'Completed deletion for ref_no=%', my_record.ref_no;
-
+ 
         EXCEPTION WHEN OTHERS THEN
             RAISE NOTICE 'Failed deletion for ref_no=%', my_record.ref_no;
         END;
-
+ 
     END LOOP;
 END;
 $BODY$;
+ALTER PROCEDURE yono_cstmr.delete_ntb_ref_ca()
+    OWNER TO txn1_usr;
