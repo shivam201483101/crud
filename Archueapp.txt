@@ -1,0 +1,143 @@
+
+SELECT COUNT(*)
+INTO elementCount
+FROM yono_cstmr.onbrdng_status
+WHERE updtd_dt < NOW() - INTERVAL '30 days'
+  AND initial_state = '055'
+  AND ref_no LIKE '%NCA%';
+
+RAISE NOTICE 'Total elements to archive: %', elementCount;
+
+
+CREATE OR REPLACE PROCEDURE yono_cstmr.archive_completed_nca_applications()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    my_record RECORD;
+BEGIN
+    FOR my_record IN
+        SELECT
+            s.ref_no,
+            m.mbl_no
+        FROM yono_cstmr.onbrdng_status s
+        JOIN yono_cstmr.mbl_dtls m
+          ON m.ref_no = s.ref_no
+        WHERE s.initial_state = '055'
+          AND s.updtd_dt < NOW() - INTERVAL '30 days'
+          AND s.ref_no LIKE '%NCA%'
+    LOOP
+        BEGIN
+            RAISE NOTICE 'Archiving ref_no: %', my_record.ref_no;
+
+            -- ================= ARCHIVE =================
+
+            INSERT INTO yono_archive.accnt_onbrdng_status_arch
+            SELECT * FROM yono_accnt.accnt_onbrdng_status
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.nominee_dtls_arch
+            SELECT * FROM yono_accnt.nominee_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.edms_doc_dtls_arch
+            SELECT * FROM yono_dcmnt.edms_doc_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.mbl_blk_arch
+            SELECT * FROM yono_rstr.mbl_blk
+            WHERE mbl_no = my_record.mbl_no;
+
+            INSERT INTO yono_archive.aadhar_block_arch
+            SELECT * FROM yono_rstr.aadhar_block
+            WHERE uid = my_record.ref_no;
+
+            INSERT INTO yono_archive.aadhar_txn_history_arch
+            SELECT * FROM yono_rstr.aadhar_txn_history
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.otp_requests_arch
+            SELECT * FROM yono_rstr.otp_requests
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.mbl_dtls_arch
+            SELECT * FROM yono_cstmr.mbl_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.nominee_details_arch
+            SELECT * FROM yono_cstmr.nominee_details
+            WHERE lead_id = my_record.ref_no;
+
+            INSERT INTO yono_archive.ckyc_dtls_arch
+            SELECT * FROM yono_cstmr.ckyc_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.branch_status_dtls_arch
+            SELECT * FROM yono_cstmr.branch_status_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.mkr_chckr_dtls_arch
+            SELECT * FROM yono_cstmr.mkr_chckr_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.cstmr_pd_arch
+            SELECT * FROM yono_cstmr.cstmr_pd
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.cstmr_add_arch
+            SELECT * FROM yono_cstmr.cstmr_add
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.ekyc_pan_dtls_arch
+            SELECT * FROM yono_cstmr.ekyc_pan_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.onbrdng_status_arch
+            SELECT * FROM yono_cstmr.onbrdng_status
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.cstmr_onbrdng_hstry_arch
+            SELECT * FROM yono_cstmr.cstmr_onbrdng_hstry
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.ovd_arch
+            SELECT * FROM yono_cstmr.ovd
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.branch_rmrk_arch
+            SELECT * FROM yono_cstmr.branch_rmrk
+            WHERE ref_no = my_record.ref_no;
+
+            INSERT INTO yono_archive.vkyc_dtls_arch
+            SELECT * FROM yono_cstmr.vkyc_dtls
+            WHERE ref_no = my_record.ref_no;
+
+            -- ================= DELETE =================
+
+            DELETE FROM yono_accnt.accnt_onbrdng_status WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_accnt.nominee_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_dcmnt.edms_doc_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_rstr.mbl_blk WHERE mbl_no = my_record.mbl_no;
+            DELETE FROM yono_rstr.aadhar_block WHERE uid = my_record.ref_no;
+            DELETE FROM yono_rstr.aadhar_txn_history WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_rstr.otp_requests WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.nominee_details WHERE lead_id = my_record.ref_no;
+            DELETE FROM yono_cstmr.ckyc_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.branch_status_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.mkr_chckr_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.cstmr_pd WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.cstmr_add WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.ekyc_pan_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.cstmr_onbrdng_hstry WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.ovd WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.branch_rmrk WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.vkyc_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.mbl_dtls WHERE ref_no = my_record.ref_no;
+            DELETE FROM yono_cstmr.onbrdng_status WHERE ref_no = my_record.ref_no;
+
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'Failed to archive ref_no % : %',
+                         my_record.ref_no, SQLERRM;
+        END;
+    END LOOP;
+END;
+$$;
