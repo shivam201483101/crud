@@ -1,0 +1,58 @@
+@Repository
+public interface ConsentRepo extends JpaRepository<ConsntTempVo, ConsntTempPk>{	
+	
+	
+	
+	@Query(value = "SELECT ref_no, rmrk_key, rmrk_value,cmmnts, jrny_id, crtd_dt, updtd_dt, crtd_by "
+			+ "FROM yono_cstmr.branch_rmrk "
+			+ "WHERE ref_no = :refNo AND jrny_id = :jrnyId AND rmrk_key = :rmrkKey", 
+			nativeQuery = true)
+	Optional<ConsntTempVo> findByRefNoAndJrnyIdAndRmrkKey(@Param("refNo") String refNo, 
+			@Param("jrnyId") String jrnyId, @Param("rmrkKey") String rmrkKey);
+	
+	@Query(value = "SELECT ref_no, rmrk_key, rmrk_value,cmmnts, jrny_id, crtd_dt, updtd_dt, crtd_by "
+			+ "FROM yono_cstmr.branch_rmrk "
+			+ "WHERE ref_no = :refNo AND jrny_id = :jrnyId", 
+			nativeQuery = true)
+	List<ConsntTempVo> findByRefNoAndJrnyId(@Param("refNo") String refNo, @Param("jrnyId") String jrnyId);
+
+}
+
+
+
+public class ConsntTempPk implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+
+	@Column(name = "ref_no")
+	private String refNo;
+	
+	@Column(name = "jrny_id")
+	private String jrnyId;
+	
+	@Column(name = "rmrk_key")
+	private String rmrkKey;
+
+	public String getRefNo() {
+		return refNo;
+	}
+
+	public void setRefNo(String refNo) {
+		this.refNo = refNo;
+	}
+
+	public String getJrnyId() {
+		return jrnyId;
+	}
+
+	public void setJrnyId(String jrnyId) {
+		this.jrnyId = jrnyId;
+	}
+
+	public String getRmrkKey() {
+		return rmrkKey;
+	}
+
+	public void setRmrkKey(String rmrkKey) {
+		this.rmrkKey = rmrkKey;
+	}
