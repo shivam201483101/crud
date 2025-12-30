@@ -1,3 +1,15 @@
+
+@Repository
+public interface ConsentRepo extends JpaRepository<ConsntTempVo, ConsntTempPk> {
+
+    Optional<ConsntTempVo> findByIdRefNoAndIdJrnyIdAndIdRmrkKey(
+            String refNo, String jrnyId, String rmrkKey);
+
+    List<ConsntTempVo> findByIdRefNoAndIdJrnyId(
+            String refNo, String jrnyId);
+}
+
+
 @Repository
 public interface ConsentRepo extends JpaRepository<ConsntTempVo, ConsntTempPk>{	
 	
