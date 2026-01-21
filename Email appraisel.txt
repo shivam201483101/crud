@@ -1,4 +1,67 @@
-Dear Harshal,
+Dear Dear <Manager Name>,
+
+As part of my appraisal, below is a section-wise summary of efforts and responsibilities handled by me across multiple journeys and common services.
+
+---
+
+1. Delivery Support (Production / SIT / UAT Support)
+
+- Production, SIT, and UAT support for Savings, Current Account, PPF, Re-KYC, and Joint Account journeys
+- Handled PAN validation issues post mobile linkage and Aadhaar validation drop-off scenarios
+- Fixed HyperVerge rescheduling and date-related issues
+- Resolved no debit card selected preview issues
+- Addressed joint account save/preview drop-off scenarios (025)
+- Fixed permanent address fetch API issues in PPF journey
+- Handled CKYC resend OTP request table changes
+- Implemented communication address declaration (state 011) for consent creation
+- Supported branch VKYC flag (054) state changes
+- Implemented disability code changes in save and preview flows
+- Addressed application details preview update issues for CKYC number
+- Supported error code handling for Re-KYC
+
+---
+
+2. New API Development & Enhancements
+
+- Developed CKYC Generate OTP API
+- Developed CKYC Validate OTP API
+- Implemented CKYC Preview Documents API
+- Developed CKYC enquiry APIs for Aadhaar, OVD, PAN, and DigiLocker
+- Implemented register mobile APIs with CKYC number, CKYC flag, and PAN number
+- Developed PPF funding APIs
+- Implemented PPF nominee management APIs for EJA, NJA, and joint account journeys
+- Implemented Dedupe EIS call before bank OTP generation
+- Handled DigiLocker integrations for joint account journeys including PAN state code handling
+
+---
+
+3. Continuous Improvement & Refactoring
+
+- Migrated and refactored 7 critical APIs from Common Registry to Pre-ReKYC services
+- Improved address preview logic with 40-character line-wise split
+- Enhanced Aadhaar prefetch relative name handling (S/O, C/O, D/O)
+- Implemented data deletion stored procedure for Current Account journey after 30 days
+- Implemented data archival stored procedure for Current Account journey after 30 days
+- Improved Savings Account option handling (058, 059)
+- Strengthened joint account DigiLocker and PAN validation flows
+- Improved overall stability, reusability, and maintainability of common services
+
+---
+
+Overall, I have contributed consistently across delivery support, new feature development, and continuous improvements, ensuring stable releases, reduced customer drop-offs, and smooth onboarding experiences across multiple bank journeys.
+
+Regards,
+Shivam Pandey
+
+---
+
+If you want next:
+
+- % effort split (e.g. 40/35/25)
+- Quantified impact (number of APIs, defects, prod issues)
+- Short HR-portal version
+
+Just tell me 👍,
 
 As part of my appraisal, I would like to highlight the responsibilities handled and contributions delivered by me across multiple banking journeys and common services.
 
