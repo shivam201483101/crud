@@ -1,0 +1,58 @@
+Dear Harshal,
+
+As part of my appraisal, I would like to highlight the responsibilities handled and contributions delivered by me across multiple banking journeys and common services.
+
+CKYC & Re-KYC APIs
+
+- Implemented and supported CKYC Generate OTP and Validate OTP APIs
+- Developed CKYC Preview Documents API
+- Handled CKYC enquiry flows for Aadhaar, OVD, PAN, and DigiLocker
+- Implemented CKYC resend OTP logic and request table changes
+- Standardized error code handling for Re-KYC
+- Migrated and stabilized 7 APIs from Common Registry to Pre-ReKYC services
+
+Mobile, PAN & Aadhaar Integrations
+
+- Implemented register mobile with CKYC number, CKYC flag, and PAN number
+- Fixed PAN validation issues post mobile linkage and Aadhaar validation drop-off scenarios
+- Handled Aadhaar prefetch relative name issues (S/O, C/O, D/O)
+- Implemented dedupe EIS call before bank OTP generation
+
+DigiLocker Integrations
+
+- Implemented and fixed DigiLocker flows for joint accounts
+- Handled state code mapping issues for PAN via DigiLocker
+- Fixed permanent address fetch API issues in PPF journey
+
+PPF & Savings Account Journeys
+
+- Implemented PPF funding APIs
+- Handled PPF nominee management APIs for EJA, NJA, and joint account journeys
+- Addressed PPF funding and address-related defects
+- Implemented Savings Account option changes (058, 059)
+
+Current Account – Data Management
+
+- Designed and implemented data deletion stored procedures after 30 days
+- Designed and implemented data archival stored procedures after 30 days
+
+UI / Preview & Drop-off Fixes
+
+- Implemented address preview logic with 40-character split per line
+- Fixed application details preview update issues for CKYC number
+- Handled no debit card selected preview scenario
+- Fixed joint account drop-off scenarios (025 save/preview page)
+- Implemented communication address declaration (state 011) for consent creation
+
+Business Rule & Flag Handling
+
+- Implemented Branch VKYC flag changes (state 054)
+- Implemented disability code changes for save and preview flows
+- Handled HyperVerge rescheduling and date-related issues
+
+Overall, I have contributed across Savings Account, Current Account, PPF, Re-KYC, Joint Account, and Common Registry services, ensuring production stability, regulatory compliance, and reduced customer drop-offs.
+
+I look forward to your feedback and guidance for further improvement.
+
+Regards,
+Shivam Pandey
