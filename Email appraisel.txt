@@ -1,4 +1,31 @@
-Dear Dear <Manager Name>,
+Consistently delivered committed features and fixes across CKYC, Re-KYC, PPF, Savings, Current Account, and Joint Account journeys within agreed timelines.
+Took ownership of end-to-end delivery, including requirement clarification, development, testing support, deployment, and post-production stabilization.
+Proactively handled production issues and drop-off scenarios, ensuring minimal customer impact and quick turnaround.
+Ensured critical APIs and fixes were delivered without dependency slippages, maintaining a high say–do ratio.
+2. Servant Leadership – Team Management
+Actively supported team members during SIT/UAT/Production issues, helping debug, analyze root causes, and propose stable solutions.
+Coordinated with cross-functional teams (business, QA, integration teams) to resolve blockers and ensure smooth releases.
+Shared technical knowledge and best practices on CKYC, DigiLocker, Aadhaar, PAN integrations, and common services.
+Took responsibility beyond assigned tasks to ensure overall journey stability and team success.
+3. Analytical Ability
+Analyzed complex drop-off scenarios and integration failures across CKYC, Aadhaar, PAN, DigiLocker, and HyperVerge flows.
+Identified root causes in multi-system interactions (bank OTP, EIS, CKYC registry, DigiLocker).
+Designed logical fixes such as dedupe checks before OTP generation, structured error-code handling, and retry/resend mechanisms.
+Improved data handling through address splitting logic, relative name normalization, and state-code-based validations.
+4. Coaching
+Guided peers in understanding business flows, API dependencies, and validation logic across onboarding journeys.
+Assisted team members in resolving Git conflicts, rebase/merge issues, and adhering to coding standards.
+Provided support during defect fixes and enhancements by reviewing approaches and suggesting optimizations.
+Encouraged structured problem-solving and clean implementation practices.
+5. Continuous Learning
+Continuously enhanced domain knowledge in CKYC, Re-KYC, DigiLocker, Aadhaar, PAN validation, and regulatory requirements.
+Learned and applied improvements in API design, error handling, data archival strategies, and system stability.
+Adopted better Git workflows, conflict resolution strategies, and refactoring techniques.
+Proactively kept up with changing business requirements and applied learnings to improve existing implementations.
+
+
+
+Dear <Manager Name>,
 
 As part of my appraisal, below is a section-wise summary of efforts and responsibilities handled by me across multiple journeys and common services.
 
