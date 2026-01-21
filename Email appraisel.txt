@@ -1,3 +1,27 @@
+Leadership
+Demonstrated ownership of critical onboarding journeys and ensured timely delivery across CKYC, Re-KYC, PPF, Savings, and Joint Account flows.
+Supported team members during high-priority issues and production incidents, enabling faster resolution.
+Coordinated effectively with QA, business, and integration teams to unblock dependencies and drive closure.
+Values and Conduct
+Followed organizational values by maintaining high standards of integrity, compliance, and data security.
+Ensured regulatory and audit requirements were met in CKYC, Aadhaar, PAN, and DigiLocker implementations.
+Maintained professional conduct while collaborating with cross-functional teams under tight timelines.
+Planning and Organising
+Planned development and fixes in alignment with release schedules and business priorities.
+Broke down complex requirements into manageable tasks and executed them systematically.
+Balanced new development, defect fixes, and production support efficiently without impacting delivery commitments.
+Innovation and Creativity
+Introduced logical improvements such as dedupe checks before OTP generation, improved error-code handling, and retry mechanisms.
+Enhanced data handling with optimized address splitting, relative name normalization, and state-code-based validations.
+Improved system stability through better API flow design and proactive defect prevention.
+Dealing with Ambiguity
+Effectively handled unclear or evolving requirements by analyzing business intent and proposing practical solutions.
+Worked confidently on integrations with external systems where documentation or responses were limited.
+Adapted quickly to changing priorities while ensuring minimal impact on ongoing deliveries and system stability.
+
+
+
+
 Consistently delivered committed features and fixes across CKYC, Re-KYC, PPF, Savings, Current Account, and Joint Account journeys within agreed timelines.
 Took ownership of end-to-end delivery, including requirement clarification, development, testing support, deployment, and post-production stabilization.
 Proactively handled production issues and drop-off scenarios, ensuring minimal customer impact and quick turnaround.
