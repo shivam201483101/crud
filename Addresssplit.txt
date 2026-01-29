@@ -1,4 +1,13 @@
-public class AddressFormatter {
+Team,
+We have been facing an EIS issue related to CKYC enquiry for the past 3 days. Despite multiple follow-ups, we have not received any response from either the EIS or CKYC teams so far.
+Due to this unresolved issue, our testing activities are currently blocked, which is impacting delivery timelines. We request your immediate attention and support to help resolve this at the earliest.
+Please let us know the status or if any additional details are required from our end.
+Looking forward to an urgent update.
+Regards,
+Shivam Pandey
+
+
+class AddressFormatter {
 
     public static class AddressData {
         private final String line1;
