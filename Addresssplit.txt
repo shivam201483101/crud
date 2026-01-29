@@ -1,4 +1,13 @@
-Team,
+Hi Dhruv,
+Regarding the recently reopened defect related to the CKYC number not being present on the Application Details Preview page, I noticed that the defect has been reopened without actually navigating to or verifying that page.
+The defect has also been marked as a backend issue, whereas the concern is related to UI visibility on the preview page. Reopening the defect without validating the expected flow can lead to incorrect classification and unnecessary rework.
+If there is any difficulty in reaching the Application Details Preview page for retesting, please let me know so I can help resolve the access or navigation issue. Otherwise, kindly ensure the defect is retested before reopening.
+Thanks for your understanding.
+Regards,
+Shivam Pandey
+
+
+,
 We have been facing an EIS issue related to CKYC enquiry for the past 3 days. Despite multiple follow-ups, we have not received any response from either the EIS or CKYC teams so far.
 Due to this unresolved issue, our testing activities are currently blocked, which is impacting delivery timelines. We request your immediate attention and support to help resolve this at the earliest.
 Please let us know the status or if any additional details are required from our end.
