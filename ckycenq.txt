@@ -1,0 +1,130 @@
+package com.example.ckyc.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class CkycService {
+
+    @Autowired
+    private InvokeServiceUtility invokeserviceutility;
+
+    public Map<String, Object> ckycEnqResp(
+            String leadId,
+            String status,
+            HashMap<String, Object> custInfoResp) {
+
+        Map<String, Object> output = new HashMap<>();
+
+        // ---------- STEP 1: Check respstatus ----------
+        String respStatus = (String) custInfoResp.get("respstatus");
+
+        if ("1".equals(respStatus)) {
+            String error = (String) custInfoResp.get("Error");
+            throw new RuntimeException("EIS Error: " + error);
+        }
+
+        // ---------- STEP 2: Extract CKYC Ref ID from XML ----------
+        String xmlResponse = (String) custInfoResp.get("response");
+        String ckycRefId = extractCkycRefId(xmlResponse);
+
+        // ---------- STEP 3: Handle "No record Found" ----------
+        if ("No record Found".equalsIgnoreCase(ckycRefId)) {
+
+            if ("ckyc".equalsIgnoreCase(status)) {
+                throw new RuntimeException("No record found for CKYC enquiry");
+            }
+
+            if ("pan".equalsIgnoreCase(status)) {
+
+                // CALL CKYC_ENQUIRY AGAIN WITH OVD
+                HashMap<String, Object> ovdResp =
+                        callCkycEnquiryApi(leadId, "ovd");
+
+                return ckycEnqResp(leadId, "ovd", ovdResp);
+            }
+
+            if ("ovd".equalsIgnoreCase(status)) {
+                throw new RuntimeException("No record found for OVD enquiry");
+            }
+        }
+
+        // ---------- STEP 4: If status is CKYC ----------
+        if ("ckyc".equalsIgnoreCase(status)) {
+            output.put("ckyc_ref_id", ckycRefId);
+            output.put("response", "SUCCESS");
+            output.put("request_id", 0);   // No OTP call for CKYC
+            return output;
+        }
+
+        // ---------- STEP 5: PAN or OVD -> Call OTP ----------
+        String requestId =
+                invokeCkycOtpGenerate(ckycRefId, leadId, status);
+
+        output.put("ckyc_ref_id", ckycRefId);
+        output.put("response", "SUCCESS");
+        output.put("request_id", requestId);
+
+        return output;
+    }
+
+    // ================= XML PARSER =================
+    private String extractCkycRefId(String xml) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(
+                    new ByteArrayInputStream(xml.getBytes())
+            );
+
+            return doc.getElementsByTagName("cky_ref_id")
+                    .item(0)
+                    .getTextContent();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid CKYC XML response", e);
+        }
+    }
+
+    // ================= YOUR CKYC_ENQUIRY CALL =================
+    private HashMap<String, Object> callCkycEnquiryApi(
+            String leadId,
+            String status) {
+
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("leadid", leadId);
+        reqMap.put("status", status);
+
+        Map<String, Object> response =
+                invokeserviceutility.serviceinvoke("ckyc_enquiry", reqMap);
+
+        return new HashMap<>(response);
+    }
+
+    // ================= YOUR CKYC_OTP_GENERATE CALL =================
+    private String invokeCkycOtpGenerate(
+            String ckycRefId,
+            String leadId,
+            String status) {
+
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("leadid", leadId);
+        reqMap.put("ckyc_ref_id", ckycRefId);
+        reqMap.put("status", status);
+
+        Map<String, Object> otpResp =
+                invokeserviceutility.serviceinvoke("ckyc_otp_generate", reqMap);
+
+        Map<String, Object> generateOtpRes =
+                (Map<String, Object>) otpResp.get("generateotpres");
+
+        return (String) generateOtpRes.get("requestid");
+    }
+}
